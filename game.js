@@ -28,11 +28,36 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('bank-btn').addEventListener('click', onBank);
   document.getElementById('next-btn').addEventListener('click', onNextPlayer);
   document.getElementById('play-again-btn').addEventListener('click', showSetupScreen);
+  ['opt-entry', 'opt-clear-flash', 'opt-all-five'].forEach(id => {
+    document.getElementById(id).addEventListener('change', saveOpts);
+  });
 });
 
 // ============================================================
 // SETUP SCREEN
 // ============================================================
+const STORAGE_KEY = 'cosmicWimpoutOpts';
+
+function saveOpts() {
+  const opts = {
+    entryRequired:      document.getElementById('opt-entry').checked,
+    clearFlashRequired: document.getElementById('opt-clear-flash').checked,
+    allFiveRequired:    document.getElementById('opt-all-five').checked,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(opts));
+}
+
+function loadOpts() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (saved) {
+      document.getElementById('opt-entry').checked       = saved.entryRequired      !== false;
+      document.getElementById('opt-clear-flash').checked = saved.clearFlashRequired !== false;
+      document.getElementById('opt-all-five').checked    = saved.allFiveRequired    !== false;
+    }
+  } catch (_) { /* ignore parse errors, keep defaults */ }
+}
+
 function showSetupScreen() {
   G = null;
   document.getElementById('setup-screen').hidden = false;
@@ -48,6 +73,7 @@ function showSetupScreen() {
       <input type="text" class="player-name-input" placeholder="Player 2" maxlength="14" autocomplete="off">
     </div>`;
   document.getElementById('add-player-btn').disabled = false;
+  loadOpts();
 }
 
 function onAddPlayer() {
