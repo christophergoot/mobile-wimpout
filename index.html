@@ -33,8 +33,29 @@
         </div>
         <button id="add-player-btn" class="btn btn-ghost">+ Add Player</button>
 
-        <div class="setup-rules">
-          <p>First to <strong>500 pts</strong> wins · Must score <strong>35+</strong> to get on the board</p>
+        <h2 class="section-label" style="margin-top:10px">RULES</h2>
+        <div class="option-list">
+          <label class="option-row">
+            <span class="option-label">
+              <span class="option-title">Entry Requirement</span>
+              <span class="option-desc">Must score 35+ pts to get on the board</span>
+            </span>
+            <input type="checkbox" id="opt-entry" class="toggle" checked>
+          </label>
+          <label class="option-row">
+            <span class="option-label">
+              <span class="option-title">Clear Flashes</span>
+              <span class="option-desc">Must roll remaining dice after a flash</span>
+            </span>
+            <input type="checkbox" id="opt-clear-flash" class="toggle" checked>
+          </label>
+          <label class="option-row">
+            <span class="option-label">
+              <span class="option-title">All Five Scored</span>
+              <span class="option-desc">Must roll all 5 again when all dice score</span>
+            </span>
+            <input type="checkbox" id="opt-all-five" class="toggle" checked>
+          </label>
         </div>
 
         <button id="start-game-btn" class="btn btn-primary btn-wide">LAUNCH GAME</button>

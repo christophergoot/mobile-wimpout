@@ -75,7 +75,12 @@ function onStartGame() {
   const inputs = Array.from(document.querySelectorAll('.player-name-input'));
   const names = inputs.map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
   if (names.length < 2) { alert('Need at least 2 players!'); return; }
-  G = createGame(names);
+  const opts = {
+    entryRequired:    document.getElementById('opt-entry').checked,
+    clearFlashRequired: document.getElementById('opt-clear-flash').checked,
+    allFiveRequired:  document.getElementById('opt-all-five').checked,
+  };
+  G = createGame(names, opts);
   document.getElementById('setup-screen').hidden = true;
   document.getElementById('game-screen').hidden = false;
   document.getElementById('gameover-screen').hidden = true;
@@ -86,9 +91,14 @@ function onStartGame() {
 // ============================================================
 // GAME MODEL
 // ============================================================
-function createGame(playerNames) {
+function createGame(playerNames, opts = {}) {
   return {
     players: playerNames.map(name => ({ name, score: 0, eliminated: false })),
+    opts: {
+      entryRequired:      opts.entryRequired      !== false,
+      clearFlashRequired: opts.clearFlashRequired !== false,
+      allFiveRequired:    opts.allFiveRequired    !== false,
+    },
     currentPlayerIndex: 0,
 
     // Die object: value | isBlack | state
@@ -277,7 +287,7 @@ function startTurn() {
   const msg = G.lastLicksActive
     ? `⚡ LAST LICKS — ${player.name}'s final turn!`
     : `${player.name}'s turn!`;
-  const sub = player.score === 0
+  const sub = (G.opts.entryRequired && player.score === 0)
     ? `Must score ${ENTRY_SCORE}+ pts to get on the board.`
     : `Total: ${player.score}`;
   setMessage(msg, sub);
@@ -291,7 +301,7 @@ function onRoll() {
 
   // Determine if we must roll all 5 (sampler flag OR all dice accounted for)
   const diceToRollCount = G.dice.filter(d => d.state === 'rolled').length;
-  const rollAll = G.mustRollAll || (G.phase === 'choosing' && diceToRollCount === 0);
+  const rollAll = G.mustRollAll || (G.phase === 'choosing' && G.opts.allFiveRequired && diceToRollCount === 0);
   G.mustRollAll = false;
 
   // ── Commit currently selected dice ──
@@ -373,17 +383,16 @@ function resolveRoll(rollIndices) {
     }
   });
 
-  // Flash requires clearing roll before banking
-  if (er.flashValue !== null) {
+  // Flash requires clearing roll before banking (if rule enabled)
+  if (er.flashValue !== null && G.opts.clearFlashRequired) {
     G.mustClearFlash = true;
     G.clearingFlashValue = er.flashValue;
   }
 
   // Check if all 5 dice are now accounted for (committed + selected/flash)
   const allUsed = G.dice.every(d => d.state === 'committed' || d.state === 'selected' || d.state === 'flash');
-  if (allUsed) {
+  if (allUsed && G.opts.allFiveRequired) {
     G.mustRollAll = true;
-    // Flash clearing overrides — next roll must be all 5, clearing constraint still applies
   }
 
   refreshTurnScore();
@@ -394,7 +403,7 @@ function resolveRoll(rollIndices) {
     setMessage(`Flash of ${er.flashValue}s! (+${er.flashValue * 10} pts)`,
       G.mustRollAll ? 'All dice used — must roll all 5 to clear!' : 'Must roll remaining dice to clear.');
     document.getElementById('msg-main').className = 'msg-flash';
-  } else if (allUsed) {
+  } else if (allUsed && G.opts.allFiveRequired) {
     setMessage('All dice scored! Must roll all 5 again.', 'Banking disabled until you roll.');
     document.getElementById('msg-main').className = 'msg-sampler';
   } else {
@@ -475,11 +484,11 @@ function onBank() {
     setMessage('Must roll to clear the flash first!', '');
     return;
   }
-  if (G.mustRollAll || toRollNow === 0) {
+  if (G.mustRollAll || (G.opts.allFiveRequired && toRollNow === 0)) {
     setMessage('Must roll all 5 dice first!', '');
     return;
   }
-  if (player.score === 0 && total < ENTRY_SCORE) {
+  if (G.opts.entryRequired && player.score === 0 && total < ENTRY_SCORE) {
     setMessage(`Need ${ENTRY_SCORE} pts to get on the board!`, `You have ${total} — keep rolling!`);
     return;
   }
@@ -710,7 +719,7 @@ function updateButtons() {
   if (G.phase === 'choosing') {
     // 'rolled' state = dice from current roll not yet selected (available to re-roll)
     const toRoll = G.dice.filter(d => d.state === 'rolled').length;
-    const forceRollAll = G.mustRollAll || toRoll === 0;
+    const forceRollAll = G.mustRollAll || (G.opts.allFiveRequired && toRoll === 0);
 
     // Roll button
     if (forceRollAll) {
@@ -725,7 +734,7 @@ function updateButtons() {
     const rollScore = calcCurrentRollScore();
     const total = G.committedScore + rollScore;
     const player = G.players[G.currentPlayerIndex];
-    const entryOk = player.score > 0 || total >= ENTRY_SCORE;
+    const entryOk = !G.opts.entryRequired || player.score > 0 || total >= ENTRY_SCORE;
     const canBank = !G.mustClearFlash && !forceRollAll && entryOk && rollScore > 0;
     bankBtn.disabled = !canBank;
   }
