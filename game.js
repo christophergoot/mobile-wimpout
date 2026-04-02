@@ -8,6 +8,8 @@ const BLACK_FACES = [2, 3, 4, 5, 6, 'sun'];
 const WINNING_SCORE = 500;
 const ENTRY_SCORE = 35;
 const ROLL_MS = 600;
+const STORAGE_KEY     = 'cosmicWimpoutOpts';
+const GAME_STATE_KEY  = 'cosmicWimpoutGame';
 
 // ============================================================
 // FACE SVG ICONS
@@ -88,13 +90,15 @@ document.addEventListener('DOMContentLoaded', () => {
   ['opt-entry', 'opt-clear-flash', 'opt-all-five', 'opt-flash-optional'].forEach(id => {
     document.getElementById(id).addEventListener('change', saveOpts);
   });
+
+  if (!restoreGameState()) {
+    showSetupScreen();
+  }
 });
 
 // ============================================================
 // SETUP SCREEN
 // ============================================================
-const STORAGE_KEY = 'cosmicWimpoutOpts';
-
 function saveOpts() {
   const opts = {
     entryRequired:      document.getElementById('opt-entry').checked,
@@ -119,6 +123,7 @@ function loadOpts() {
 
 function showSetupScreen() {
   G = null;
+  clearGameState();
   document.getElementById('setup-screen').hidden = false;
   document.getElementById('game-screen').hidden = true;
   document.getElementById('gameover-screen').hidden = true;
@@ -175,6 +180,61 @@ function onStartGame() {
 }
 
 // ============================================================
+// GAME STATE PERSISTENCE
+// ============================================================
+function saveGameState() {
+  if (!G || G.phase === 'gameover') return;
+  try {
+    const snapshot = {
+      ...G,
+      dice: G.dice.map(d => ({ ...d })),
+      lastLicksDone: [...G.lastLicksDone],
+    };
+    // If saved mid-animation, treat as pre-roll on restore
+    if (snapshot.phase === 'rolling') {
+      snapshot.phase = 'preroll';
+      snapshot.dice.forEach(d => { if (d.state === 'rolling') d.state = 'unrolled'; });
+      snapshot.committedScore = 0;
+      snapshot.evalResult = null;
+      snapshot.lastRollIndices = [];
+    }
+    localStorage.setItem(GAME_STATE_KEY, JSON.stringify(snapshot));
+  } catch (_) {}
+}
+
+function clearGameState() {
+  localStorage.removeItem(GAME_STATE_KEY);
+}
+
+function restoreGameState() {
+  try {
+    const raw = localStorage.getItem(GAME_STATE_KEY);
+    if (!raw) return false;
+    const snapshot = JSON.parse(raw);
+    if (!snapshot || !snapshot.players || snapshot.phase === 'gameover') return false;
+    G = { ...snapshot, lastLicksDone: new Set(snapshot.lastLicksDone) };
+    document.getElementById('setup-screen').hidden = true;
+    document.getElementById('game-screen').hidden = false;
+    document.getElementById('gameover-screen').hidden = true;
+    renderScoreBoard();
+    renderCurrentPlayer();
+    renderDice();
+    refreshTurnScore();
+    updateLastLicksBanner();
+    updateButtons();
+    if (G.phase === 'endturn') showNextBtn();
+    const msg = G.savedMsg;
+    if (msg) {
+      setMessage(msg.main, msg.sub);
+      if (msg.cls) document.getElementById('msg-main').className = msg.cls;
+    } else {
+      setMessage(`${G.players[G.currentPlayerIndex].name}'s turn — game restored.`, '');
+    }
+    return true;
+  } catch (_) { return false; }
+}
+
+// ============================================================
 // GAME MODEL
 // ============================================================
 function createGame(playerNames, opts = {}) {
@@ -184,6 +244,7 @@ function createGame(playerNames, opts = {}) {
       entryRequired:      opts.entryRequired      !== false,
       clearFlashRequired: opts.clearFlashRequired !== false,
       allFiveRequired:    opts.allFiveRequired    !== false,
+      flashOptional:      !!opts.flashOptional,
     },
     currentPlayerIndex: 0,
 
@@ -220,6 +281,9 @@ function createGame(playerNames, opts = {}) {
     lastLicksActive: false,
     lastLicksInitiator: -1,
     lastLicksDone: new Set(),
+
+    // Last displayed message (for restore after refresh)
+    savedMsg: null,
   };
 }
 
@@ -377,6 +441,7 @@ function startTurn() {
     ? `Must score ${ENTRY_SCORE}+ pts to get on the board.`
     : `Total: ${player.score}`;
   setMessage(msg, sub);
+  saveGameState();
 }
 
 // ============================================================
@@ -418,8 +483,9 @@ function onRoll() {
   // ── Determine which dice to roll ──
   let rollIndices;
   if (rollAll) {
-    // Full re-roll: reset all dice
+    // Full re-roll: reset all dice; also clear any carry-over flash-clearing value
     G.dice.forEach(d => { d.value = null; d.state = 'unrolled'; });
+    G.clearingFlashValue = null;
     rollIndices = [0, 1, 2, 3, 4];
   } else {
     // Roll only non-committed dice (state 'rolled' = available to re-roll)
@@ -501,10 +567,10 @@ function resolveRoll(rollIndices) {
       ? 'Flash is optional — keep it or select individual dice.'
       : (G.mustRollAll ? 'All dice used — must roll all 5 to clear!' : 'Must roll remaining dice to clear.');
     setMessage(`Flash of ${er.flashValue}s! (+${er.flashValue * 10} pts)`, flashSub);
-    document.getElementById('msg-main').className = 'msg-flash';
+    setMessageClass('msg-flash');
   } else if (allUsed && G.opts.allFiveRequired) {
     setMessage('All dice scored! Must roll all 5 again.', 'Banking disabled until you roll.');
-    document.getElementById('msg-main').className = 'msg-sampler';
+    setMessageClass('msg-sampler');
   } else {
     const hasToggleable = rollIndices.some(gi => {
       const li = rollIndices.indexOf(gi);
@@ -512,6 +578,7 @@ function resolveRoll(rollIndices) {
     });
     setMessage('Scoring dice selected', hasToggleable ? 'Tap 5s or 10s to toggle · Gold = locked in · Cyan = flash' : 'Roll remaining or Bank.');
   }
+  saveGameState();
 }
 
 // ============================================================
@@ -526,7 +593,7 @@ function handleFreight(er) {
     // Don't pre-add to committedScore — bankAndFinish uses calcCurrentRollScore()
     refreshTurnScore();
     setMessage('🚂 FREIGHT TRAIN — FIVE 6s!', 'Instant Win!');
-    document.getElementById('msg-main').className = 'msg-freight';
+    setMessageClass('msg-freight');
     setTimeout(() => bankAndFinish(true), 1400);
     return;
   }
@@ -534,14 +601,15 @@ function handleFreight(er) {
     G.players[G.currentPlayerIndex].eliminated = true;
     renderScoreBoard();
     setMessage('💥 SUPERNOVA! Five 10s!', `${G.players[G.currentPlayerIndex].name} is eliminated!`);
-    document.getElementById('msg-main').className = 'msg-wimpout';
+    setMessageClass('msg-wimpout');
     showNextBtn();
+    saveGameState();
     return;
   }
   // Normal freight train — don't pre-add; bankAndFinish computes total
   refreshTurnScore();
   setMessage(`🚂 FREIGHT TRAIN! Five ${er.value}s — ${er.score} pts`, 'Auto-banking…');
-  document.getElementById('msg-main').className = 'msg-freight';
+  setMessageClass('msg-freight');
   setTimeout(() => bankAndFinish(false), 1400);
 }
 
@@ -555,7 +623,8 @@ function handleSampler() {
   renderDice();
   updateButtons();
   setMessage('🌈 SAMPLER! +25 pts', 'All different — must roll all 5 again!');
-  document.getElementById('msg-main').className = 'msg-sampler';
+  setMessageClass('msg-sampler');
+  saveGameState();
 }
 
 function handleWimpout() {
@@ -564,8 +633,9 @@ function handleWimpout() {
   renderDice();
   const lost = G.committedScore;
   setMessage('💨 WIMPOUT!', lost > 0 ? `Lost ${lost} turn pts — pass the dice.` : 'No points scored — pass the dice.');
-  document.getElementById('msg-main').className = 'msg-wimpout';
+  setMessageClass('msg-wimpout');
   showNextBtn();
+  saveGameState();
 }
 
 // ============================================================
@@ -616,7 +686,7 @@ function bankAndFinish(instantWin) {
     G.lastLicksInitiator = G.currentPlayerIndex;
     G.lastLicksDone.clear();
     setMessage(`${player.name} reaches ${player.score} pts!`, '⚡ LAST LICKS — everyone else gets one final turn!');
-    document.getElementById('msg-main').className = 'msg-win';
+    setMessageClass('msg-win');
   } else if (hitTarget && G.lastLicksActive) {
     // Another player also hit the target during last licks — just note it
     setMessage(`${player.name} scores ${player.score} pts!`, 'High score wins after all last licks!');
@@ -625,6 +695,7 @@ function bankAndFinish(instantWin) {
   }
 
   showNextBtn();
+  saveGameState();
 }
 
 // ============================================================
@@ -665,6 +736,7 @@ function checkGameOver() {
 
 function showGameOver() {
   G.phase = 'gameover';
+  clearGameState();
   document.getElementById('game-screen').hidden = true;
   document.getElementById('gameover-screen').hidden = false;
 
@@ -702,6 +774,7 @@ function onDieClick(globalIdx) {
   refreshTurnScore();
   renderDice();
   updateButtons();
+  saveGameState();
 }
 
 // ============================================================
@@ -865,4 +938,11 @@ function setMessage(main, sub = '') {
   el.textContent = main;
   el.className = '';
   document.getElementById('msg-sub').textContent = sub;
+  if (G) G.savedMsg = { main, sub, cls: '' };
+}
+
+function setMessageClass(cls) {
+  const el = document.getElementById('msg-main');
+  el.className = cls;
+  if (G && G.savedMsg) G.savedMsg.cls = cls;
 }
