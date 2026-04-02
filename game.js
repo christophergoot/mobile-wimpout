@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('bank-btn').addEventListener('click', onBank);
   document.getElementById('next-btn').addEventListener('click', onNextPlayer);
   document.getElementById('play-again-btn').addEventListener('click', showSetupScreen);
-  ['opt-entry', 'opt-clear-flash', 'opt-all-five'].forEach(id => {
+  ['opt-entry', 'opt-clear-flash', 'opt-all-five', 'opt-flash-optional'].forEach(id => {
     document.getElementById(id).addEventListener('change', saveOpts);
   });
 });
@@ -100,6 +100,7 @@ function saveOpts() {
     entryRequired:      document.getElementById('opt-entry').checked,
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
     allFiveRequired:    document.getElementById('opt-all-five').checked,
+    flashOptional:      document.getElementById('opt-flash-optional').checked,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(opts));
 }
@@ -108,9 +109,10 @@ function loadOpts() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (saved) {
-      document.getElementById('opt-entry').checked       = saved.entryRequired      !== false;
-      document.getElementById('opt-clear-flash').checked = saved.clearFlashRequired !== false;
-      document.getElementById('opt-all-five').checked    = saved.allFiveRequired    !== false;
+      document.getElementById('opt-entry').checked          = saved.entryRequired      !== false;
+      document.getElementById('opt-clear-flash').checked    = saved.clearFlashRequired !== false;
+      document.getElementById('opt-all-five').checked       = saved.allFiveRequired    !== false;
+      document.getElementById('opt-flash-optional').checked = !!saved.flashOptional;
     }
   } catch (_) { /* ignore parse errors, keep defaults */ }
 }
@@ -159,9 +161,10 @@ function onStartGame() {
   const names = inputs.map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
   if (names.length < 2) { alert('Need at least 2 players!'); return; }
   const opts = {
-    entryRequired:    document.getElementById('opt-entry').checked,
+    entryRequired:      document.getElementById('opt-entry').checked,
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
-    allFiveRequired:  document.getElementById('opt-all-five').checked,
+    allFiveRequired:    document.getElementById('opt-all-five').checked,
+    flashOptional:      document.getElementById('opt-flash-optional').checked,
   };
   G = createGame(names, opts);
   document.getElementById('setup-screen').hidden = true;
@@ -470,14 +473,15 @@ function resolveRoll(rollIndices) {
     if (!er.canScore[li]) {
       G.dice[gi].state = 'rolled'; // non-scoring, stays as rolled (dim in render)
     } else if (er.flashIndices.includes(li)) {
-      G.dice[gi].state = 'flash'; // flash die (auto-selected, locked)
+      // When flashOptional, flash dice are toggleable (selected); otherwise locked (flash)
+      G.dice[gi].state = G.opts.flashOptional ? 'selected' : 'flash';
     } else {
       G.dice[gi].state = 'selected'; // individual scorer, auto-selected (can toggle)
     }
   });
 
-  // Flash requires clearing roll before banking (if rule enabled)
-  if (er.flashValue !== null && G.opts.clearFlashRequired) {
+  // Flash requires clearing roll before banking (if rule enabled and flash is not optional)
+  if (er.flashValue !== null && G.opts.clearFlashRequired && !G.opts.flashOptional) {
     G.mustClearFlash = true;
     G.clearingFlashValue = er.flashValue;
   }
@@ -493,8 +497,10 @@ function resolveRoll(rollIndices) {
   updateButtons();
 
   if (er.flashValue !== null) {
-    setMessage(`Flash of ${er.flashValue}s! (+${er.flashValue * 10} pts)`,
-      G.mustRollAll ? 'All dice used — must roll all 5 to clear!' : 'Must roll remaining dice to clear.');
+    const flashSub = G.opts.flashOptional
+      ? 'Flash is optional — keep it or select individual dice.'
+      : (G.mustRollAll ? 'All dice used — must roll all 5 to clear!' : 'Must roll remaining dice to clear.');
+    setMessage(`Flash of ${er.flashValue}s! (+${er.flashValue * 10} pts)`, flashSub);
     document.getElementById('msg-main').className = 'msg-flash';
   } else if (allUsed && G.opts.allFiveRequired) {
     setMessage('All dice scored! Must roll all 5 again.', 'Banking disabled until you roll.');
@@ -690,7 +696,7 @@ function onDieClick(globalIdx) {
   if (li === -1) return; // not from current roll
   if (d.state === 'flash' || d.state === 'committed') return; // locked
   if (!G.evalResult || !G.evalResult.canScore[li]) return; // not scorable
-  if (G.evalResult.flashIndices.includes(li)) return; // part of flash, locked
+  if (G.evalResult.flashIndices.includes(li) && !G.opts.flashOptional) return; // part of flash, locked
 
   d.state = d.state === 'selected' ? 'rolled' : 'selected';
   refreshTurnScore();
