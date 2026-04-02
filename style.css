@@ -447,16 +447,33 @@ html, body {
 }
 
 .die-face {
-  font-family: var(--font-head);
-  font-size: clamp(18px, 4.5vw, 26px);
-  font-weight: 700;
-  color: var(--white-die-text);
+  width: 76%;
+  height: 76%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
-  line-height: 1;
+  color: var(--white-die-text);
 }
 
 .die.black-die .die-face {
   color: var(--black-die-text);
+}
+
+/* SVG fills the face container */
+.die-face svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Number faces (5, 10) */
+.die-num {
+  font-family: var(--font-head);
+  font-size: clamp(17px, 4.5vw, 25px);
+  font-weight: 700;
+  color: currentColor;
+  line-height: 1;
 }
 
 /* Die states */
@@ -467,7 +484,7 @@ html, body {
 }
 
 .die.unrolled .die-face {
-  color: transparent;
+  opacity: 0;
 }
 
 .die.held {
