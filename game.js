@@ -385,7 +385,17 @@ function onRoll() {
   // Determine if we must roll all 5 (sampler flag OR all dice accounted for)
   const diceToRollCount = G.dice.filter(d => d.state === 'rolled').length;
   const rollAll = G.mustRollAll || (G.phase === 'choosing' && G.opts.allFiveRequired && diceToRollCount === 0);
-  G.mustRollAll = false;
+
+  // Must keep at least one scoring die before rolling again (not applicable to forced roll-all)
+  if (G.phase === 'choosing' && !rollAll) {
+    const hasSelection = G.dice.some(d => d.state === 'selected' || d.state === 'flash');
+    if (!hasSelection) {
+      setMessage('Must keep at least one scoring die!', 'Tap a die to select it before rolling.');
+      return; // G.mustRollAll intentionally not cleared — still valid for next attempt
+    }
+  }
+
+  G.mustRollAll = false; // consume the flag only after passing all guards
 
   // ── Commit currently selected dice ──
   if (G.phase === 'choosing') {
@@ -803,13 +813,15 @@ function updateButtons() {
     // 'rolled' state = dice from current roll not yet selected (available to re-roll)
     const toRoll = G.dice.filter(d => d.state === 'rolled').length;
     const forceRollAll = G.mustRollAll || (G.opts.allFiveRequired && toRoll === 0);
+    // Must keep at least one scoring die before rolling again
+    const hasSelection = G.dice.some(d => d.state === 'selected' || d.state === 'flash');
 
     // Roll button
     if (forceRollAll) {
       rollBtn.disabled = false;
       rollBtn.textContent = 'ROLL ALL 5';
     } else {
-      rollBtn.disabled = false;
+      rollBtn.disabled = !hasSelection;
       rollBtn.textContent = toRoll < 5 ? `ROLL ${toRoll}` : 'ROLL';
     }
 
