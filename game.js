@@ -550,12 +550,14 @@ function onRoll() {
   renderDice();     // resets el.className — must run BEFORE we add .rolling
   updateButtons();
 
-  // Add .rolling AFTER renderDice so it isn't wiped by the className reset
+  // Add .rolling AFTER renderDice so it isn't wiped by the className reset.
+  // Set animationDelay on .die-cube (the animated element), not on .die.
   rollIndices.forEach((gi, li) => {
     const el = document.getElementById(`die-${gi}`);
     if (!el) return;
+    const cube = el.querySelector('.die-cube');
     el.classList.add('rolling');
-    el.style.animationDelay = `${Math.floor(Math.random() * 40)}ms`;
+    if (cube) cube.style.animationDelay = `${Math.floor(Math.random() * 40)}ms`;
   });
 
   // Track which dice are still cycling
@@ -578,11 +580,15 @@ function onRoll() {
       cycling.delete(li);
       const el = document.getElementById(`die-${gi}`);
       if (!el) return;
+      const cube = el.querySelector('.die-cube');
       el.querySelector('.die-face').innerHTML = faceSVG(prerolledValues[li]);
       el.classList.remove('rolling');
-      el.style.animationDelay = '';
+      if (cube) { cube.style.animationDelay = ''; cube.style.transform = ''; }
       el.classList.add('landing');
-      setTimeout(() => el.classList.remove('landing'), LAND_MS);
+      setTimeout(() => {
+        el.classList.remove('landing');
+        if (cube) cube.style.transform = '';
+      }, LAND_MS);
     }, STAGGER_OFFSETS[li] || 0);
   });
 
@@ -591,7 +597,10 @@ function onRoll() {
     clearInterval(cycleInterval);
     rollIndices.forEach(gi => {
       const el = document.getElementById(`die-${gi}`);
-      if (el) { el.classList.remove('rolling', 'landing'); el.style.animationDelay = ''; }
+      if (!el) return;
+      el.classList.remove('rolling', 'landing');
+      const cube = el.querySelector('.die-cube');
+      if (cube) { cube.style.animationDelay = ''; cube.style.transform = ''; }
     });
     resolveRoll(rollIndices, prerolledValues);
   }, ROLL_MS);

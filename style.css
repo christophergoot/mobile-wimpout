@@ -423,29 +423,64 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
+  perspective: 600px;
+  perspective-origin: 50% 40%;
 }
 
+/* Outer wrapper: sizing, cursor, state classes only — no background/shadow */
 .die {
   width: clamp(58px, 14vw, 74px);
   height: clamp(58px, 14vw, 74px);
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.2s, cursor 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3D container — all transforms (roll animation + state lifts) go here */
+.die-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* All 6 cube faces */
+.face {
+  position: absolute;
+  inset: 0;
   border-radius: 14px;
   background: var(--white-die-bg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  border: 3px solid transparent;
-  transition: all 0.2s;
-  position: relative;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
-  user-select: none;
+  border: 3px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.die.black-die {
+.black-die .face {
   background: var(--black-die-bg);
   box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 8px rgba(180,0,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
+/* Face positions — translateZ = 33px (≈ half of mid-range die size 66px) */
+.face-front  { transform: translateZ(33px); }
+.face-back   { transform: rotateY(180deg) translateZ(33px); }
+.face-right  { transform: rotateY( 90deg) translateZ(33px); }
+.face-left   { transform: rotateY(-90deg) translateZ(33px); }
+.face-top    { transform: rotateX( 90deg) translateZ(33px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(33px); }
+
+/* Non-front faces darkened for 3D shading illusion */
+.face-back, .face-right, .face-left   { filter: brightness(0.5); }
+.face-top,  .face-bottom               { filter: brightness(0.7); }
+
+/* Die face content (value SVG/number) lives inside face-front */
 .die-face {
   width: 76%;
   height: 76%;
@@ -456,18 +491,16 @@ html, body {
   color: var(--white-die-text);
 }
 
-.die.black-die .die-face {
+.black-die .die-face {
   color: var(--black-die-text);
 }
 
-/* SVG fills the face container */
 .die-face svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* Number faces (5, 10) */
 .die-num {
   font-family: var(--font-head);
   font-size: clamp(17px, 4.5vw, 25px);
@@ -476,57 +509,71 @@ html, body {
   line-height: 1;
 }
 
-/* Die states */
-.die.unrolled {
+/* ── Die states ── */
+
+.die.unrolled .face-front {
   background: #1a1030;
   border: 2px dashed #3a2060;
   box-shadow: none;
 }
-
-.die.unrolled .die-face {
-  opacity: 0;
+.die.unrolled .face-back,
+.die.unrolled .face-right,
+.die.unrolled .face-left,
+.die.unrolled .face-top,
+.die.unrolled .face-bottom {
+  background: #0e0820;
+  box-shadow: none;
 }
+.die.unrolled .die-face { opacity: 0; }
 
-.die.held {
+.die.held .face-front {
   border-color: var(--gold);
   box-shadow: 0 0 14px rgba(255,200,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
-  transform: translateY(-4px);
 }
+.die.held .die-cube { transform: translateY(-4px); }
 
-.die.held.black-die {
-  box-shadow: 0 0 14px rgba(255,200,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
-}
-
-.die.flash-die {
+.die.flash-die .face-front {
   border-color: var(--cyan);
   box-shadow: 0 0 16px rgba(64,224,255,0.6), 0 4px 12px rgba(0,0,0,0.4);
-  transform: translateY(-4px);
 }
-
-.die.flash-die.black-die {
-  box-shadow: 0 0 16px rgba(64,224,255,0.6), 0 4px 12px rgba(0,0,0,0.4);
-}
+.die.flash-die .die-cube { transform: translateY(-4px); }
 
 .die.non-scoring {
   opacity: 0.35;
   cursor: not-allowed;
-  transform: none !important;
 }
 
-.die.scorable:not(.held):not(.flash-die) {
+.die.scorable:not(.held):not(.flash-die) .face-front {
   border-color: var(--green);
   box-shadow: 0 0 10px rgba(64,255,144,0.4), 0 4px 12px rgba(0,0,0,0.3);
-  cursor: pointer;
 }
+.die.scorable:not(.held):not(.flash-die) { cursor: pointer; }
 
-/* Rolling animation */
-@keyframes rollSpin {
-  0%   { transform: rotate(0deg)   scale(0.88) translateX(0px); }
-  20%  { transform: rotate(130deg) scale(1.12) translateX(-3px); }
-  40%  { transform: rotate(230deg) scale(0.90) translateX(3px); }
-  60%  { transform: rotate(330deg) scale(1.08) translateX(-2px); }
-  80%  { transform: rotate(410deg) scale(0.95) translateX(2px); }
-  100% { transform: rotate(450deg) scale(1.0)  translateX(0px); }
+.die.committed .face-front {
+  border-color: var(--gold2);
+  opacity: 0.75;
+}
+.die.committed .face-front::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background: rgba(255,160,0,0.08);
+  pointer-events: none;
+}
+.die.committed { cursor: not-allowed; }
+
+/* ── Rolling / landing animations ── */
+
+@keyframes roll3D {
+  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg)   translateZ(0px);  }
+  15%  { transform: rotateX(160deg) rotateY(120deg) rotateZ(45deg)  translateZ(6px);  }
+  30%  { transform: rotateX(300deg) rotateY(260deg) rotateZ(90deg)  translateZ(-4px); }
+  48%  { transform: rotateX(440deg) rotateY(380deg) rotateZ(170deg) translateZ(5px);  }
+  63%  { transform: rotateX(550deg) rotateY(510deg) rotateZ(250deg) translateZ(-3px); }
+  78%  { transform: rotateX(640deg) rotateY(620deg) rotateZ(310deg) translateZ(2px);  }
+  90%  { transform: rotateX(695deg) rotateY(690deg) rotateZ(345deg) translateZ(0px);  }
+  100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(360deg) translateZ(0px);  }
 }
 
 @keyframes rollFace {
@@ -535,39 +582,22 @@ html, body {
   100%      { opacity: 1; }
 }
 
-@keyframes rollLand {
-  0%   { transform: scale(1.0)  translateY(0); }
-  30%  { transform: scale(1.18) translateY(-5px); }
-  65%  { transform: scale(0.93) translateY(2px); }
-  100% { transform: scale(1.0)  translateY(0); }
+@keyframes rollLand3D {
+  0%   { transform: translateY(0)    scale3d(1,    1,    1);    }
+  30%  { transform: translateY(-6px) scale3d(1.06, 1.06, 1.06); }
+  65%  { transform: translateY(2px)  scale3d(0.95, 0.95, 0.95); }
+  100% { transform: translateY(0)    scale3d(1,    1,    1);    }
 }
 
-.die.rolling {
-  animation: rollSpin 0.45s ease-in-out forwards;
+/* Animation targets .die-cube, not .die, so renderDice() class reset can't interfere */
+.die.rolling .die-cube {
+  animation: roll3D 0.45s ease-in-out forwards;
 }
-
-.die.rolling .die-face {
+.die.rolling .face-front .die-face {
   animation: rollFace 0.45s ease-in-out;
 }
-
-.die.landing {
-  animation: rollLand 0.15s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
-
-/* Committed dice (from previous rolls this turn) */
-.die.committed {
-  border-color: var(--gold2);
-  opacity: 0.75;
-  transform: none;
-  cursor: not-allowed;
-}
-
-.die.committed .die-face::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 11px;
-  background: rgba(255,160,0,0.08);
+.die.landing .die-cube {
+  animation: rollLand3D 0.15s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
 }
 
 #dice-hint {
@@ -763,6 +793,13 @@ body > * { position: relative; z-index: 1; }
 @media (max-width: 360px) {
   .die { width: 54px; height: 54px; }
   #dice-row { gap: 6px; }
+  /* Recalculate face translateZ for 54px die: half = 27px */
+  .face-front  { transform: translateZ(27px); }
+  .face-back   { transform: rotateY(180deg) translateZ(27px); }
+  .face-right  { transform: rotateY( 90deg) translateZ(27px); }
+  .face-left   { transform: rotateY(-90deg) translateZ(27px); }
+  .face-top    { transform: rotateX( 90deg) translateZ(27px); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(27px); }
 }
 
 /* ===== THEME BUTTON ===== */
