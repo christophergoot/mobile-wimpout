@@ -365,7 +365,7 @@ function evaluateDice(dice, clearingValue) {
   const canScore = vals.map((v, i) => {
     if (flashIndices.includes(i)) return true;   // part of flash
     if (v === clearingValue) return false;        // forbidden
-    if (v === 'sun') return false;                // sun alone = nothing
+    if (v === 'sun') return true;                 // sun scores as 10 individually
     return v === 5 || v === 10;                   // individual 5 or 10
   });
 
@@ -392,17 +392,20 @@ function calcCurrentRollScore() {
   const gIdxs = G.lastRollIndices;
   let score = 0;
 
-  if (flashValue !== null) {
-    const allHeld = flashIndices.every(li => G.dice[gIdxs[li]].state === 'flash' || G.dice[gIdxs[li]].state === 'selected');
-    if (allHeld) score += flashValue * 10;
-  }
+  // Flash score: only if every flash die is still held
+  const allHeld = flashValue !== null &&
+    flashIndices.every(li => G.dice[gIdxs[li]].state === 'flash' || G.dice[gIdxs[li]].state === 'selected');
+  if (allHeld) score += flashValue * 10;
 
+  // Individual die scoring (5 = 5 pts, 10 = 10 pts, sun = 10 pts)
   gIdxs.forEach((gi, li) => {
-    if (flashIndices.includes(li)) return;
     const d = G.dice[gi];
     if (d.state !== 'selected') return;
-    if (d.value === 5)  score += 5;
-    if (d.value === 10) score += 10;
+    // Skip if this die is already counted inside an intact flash
+    if (flashIndices.includes(li) && allHeld) return;
+    if (d.value === 'sun') score += 10;
+    if (d.value === 5)    score += 5;
+    if (d.value === 10)   score += 10;
   });
 
   return score;

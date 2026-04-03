@@ -138,10 +138,11 @@ describe('evaluateDice – sun wildcard', () => {
     expect(r.flashValue).toBeNull();
   });
 
-  test('sun alone does not count as an individual scorer', () => {
+  test('sun alone counts as an individual scorer (scores as 10)', () => {
     const r = evaluateDice([d('sun', true), d(2), d(3)], null);
     const sunIdx = 0;
-    expect(r.canScore[sunIdx]).toBe(false);
+    expect(r.canScore[sunIdx]).toBe(true);
+    expect(r.type).toBe('normal'); // not wimpout
   });
 
   test('sun pair blocked by clearingValue → no flash', () => {
@@ -231,5 +232,61 @@ describe('evaluateDice – mixed flash + individual scorers', () => {
     const r = evaluateDice([d(4), d(4), d(4), d(2)], null);
     const twoIdx = 3;
     expect(r.canScore[twoIdx]).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SUN USED AS 10  (user-specified scenarios)
+// ─────────────────────────────────────────────────────────────────────────────
+describe('evaluateDice – sun usable as 10', () => {
+  // Test 1 (user spec): flash that includes a wild, user opts to use wild as 10
+  // and reroll the other 2 dice.
+  // The evaluation must mark all three dice (pair + sun) as canScore so the
+  // player can deselect the pair and keep only the sun (scoring 10).
+  test('flash with sun wildcard: sun marked canScore so player can keep it as 10', () => {
+    const r = evaluateDice([d(4), d(4), d('sun', true)], null);
+    expect(r.flashValue).toBe(4);
+    expect(r.flashIndices).toContain(2); // sun is part of the flash
+    // sun is canScore=true (as a flash member); player can choose to deselect
+    // the two 4s and keep sun for 10 pts (flash breaks, sun scores as 10)
+    expect(r.canScore[2]).toBe(true);
+    // The two 4s are also in the flash and canScore
+    expect(r.canScore[0]).toBe(true);
+    expect(r.canScore[1]).toBe(true);
+  });
+
+  // Test 2 (user spec): no flash, but sun can be used as a 10.
+  test('no flash: sun alone is scoreable as 10', () => {
+    const r = evaluateDice([d('sun', true), d(2), d(3)], null);
+    expect(r.flashValue).toBeNull();
+    expect(r.type).toBe('normal'); // not wimpout — sun rescues the roll
+    expect(r.canScore[0]).toBe(true);  // sun
+    expect(r.canScore[1]).toBe(false); // 2 (non-scorer)
+    expect(r.canScore[2]).toBe(false); // 3 (non-scorer)
+  });
+
+  // Test 3 (user spec): roll includes a 10 and a wild; player keeps the 10 and
+  // rerolls the wild. Both must be individually scoreable so the player can
+  // choose either, either, or both.
+  test('10 and sun both scoreable; player can keep 10 and reroll sun', () => {
+    const r = evaluateDice([d(10), d('sun', true), d(2)], null);
+    expect(r.flashValue).toBeNull();
+    expect(r.canScore[0]).toBe(true);  // 10
+    expect(r.canScore[1]).toBe(true);  // sun (can score as 10 or be rerolled)
+    expect(r.canScore[2]).toBe(false); // 2
+    // Both 10 and sun should be auto-selected; player can then deselect sun
+  });
+
+  test('sun with other non-scorers is not wimpout (sun saves the roll)', () => {
+    const r = evaluateDice([d('sun', true), d(3), d(4), d(6)], null);
+    expect(r.type).toBe('normal');
+    expect(r.canScore[0]).toBe(true); // sun
+  });
+
+  test('sun is individually scoreable even when clearingValue is set (not a number)', () => {
+    // clearingValue is always a face number, never 'sun', so sun is never blocked
+    const r = evaluateDice([d('sun', true), d(4)], 4);
+    expect(r.canScore[0]).toBe(true); // sun unaffected by clearing value
+    expect(r.canScore[1]).toBe(false); // 4 blocked by clearingValue
   });
 });
