@@ -541,17 +541,22 @@ function onRoll() {
   // Face pools for cycling (white vs black die faces)
   const cyclePool = rollIndices.map(gi => G.dice[gi].isBlack ? BLACK_FACES : WHITE_FACES);
 
-  // Set up rolling state with random per-die animation delay for variety
+  // Mark rolling state (renderDice reads this)
+  rollIndices.forEach(gi => {
+    G.dice[gi].value = null;
+    G.dice[gi].state = 'rolling';
+  });
+
+  renderDice();     // resets el.className — must run BEFORE we add .rolling
+  updateButtons();
+
+  // Add .rolling AFTER renderDice so it isn't wiped by the className reset
   rollIndices.forEach((gi, li) => {
     const el = document.getElementById(`die-${gi}`);
     if (!el) return;
-    G.dice[gi].value = null;
-    G.dice[gi].state = 'rolling';
+    el.classList.add('rolling');
     el.style.animationDelay = `${Math.floor(Math.random() * 40)}ms`;
   });
-
-  renderDice();
-  updateButtons();
 
   // Track which dice are still cycling
   const cycling = new Set(rollIndices.map((_, li) => li));
