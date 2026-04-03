@@ -7,7 +7,10 @@ const WHITE_FACES = [2, 3, 4, 5, 6, 10];
 const BLACK_FACES = [2, 3, 4, 5, 6, 'sun'];
 const WINNING_SCORE = 500;
 const ENTRY_SCORE = 35;
-const ROLL_MS = 600;
+const ROLL_MS         = 750;
+const STAGGER_OFFSETS = [0, 85, 160, 225, 280]; // ms per die by position in rollIndices
+const FACE_CYCLE_MS   = 60;                      // face cycling interval
+const LAND_MS         = 150;                     // landing bounce duration
 const STORAGE_KEY     = 'cosmicWimpoutOpts';
 const GAME_STATE_KEY  = 'cosmicWimpoutGame';
 
@@ -531,22 +534,61 @@ function onRoll() {
   }
 
   // ── Animate ──
-  rollIndices.forEach(i => {
-    const el = document.getElementById(`die-${i}`);
-    if (el) {
-      G.dice[i].value = null;
-      G.dice[i].state = 'rolling';
-      el.classList.add('rolling');
-    }
+
+  // Pre-generate all final values now so game logic is unaffected by timing
+  const prerolledValues = rollIndices.map(gi => rollDie(G.dice[gi].isBlack));
+
+  // Face pools for cycling (white vs black die faces)
+  const cyclePool = rollIndices.map(gi => G.dice[gi].isBlack ? BLACK_FACES : WHITE_FACES);
+
+  // Set up rolling state with random per-die animation delay for variety
+  rollIndices.forEach((gi, li) => {
+    const el = document.getElementById(`die-${gi}`);
+    if (!el) return;
+    G.dice[gi].value = null;
+    G.dice[gi].state = 'rolling';
+    el.style.animationDelay = `${Math.floor(Math.random() * 40)}ms`;
   });
+
   renderDice();
   updateButtons();
 
-  setTimeout(() => {
-    rollIndices.forEach(i => {
-      document.getElementById(`die-${i}`)?.classList.remove('rolling');
+  // Track which dice are still cycling
+  const cycling = new Set(rollIndices.map((_, li) => li));
+
+  // Face cycling interval — writes random faces directly to DOM
+  const cycleInterval = setInterval(() => {
+    cycling.forEach(li => {
+      const gi = rollIndices[li];
+      const el = document.getElementById(`die-${gi}`);
+      if (!el) return;
+      const pool = cyclePool[li];
+      el.querySelector('.die-face').innerHTML = faceSVG(pool[Math.floor(Math.random() * pool.length)]);
     });
-    resolveRoll(rollIndices);
+  }, FACE_CYCLE_MS);
+
+  // Staggered stop — each die reveals its real value at a slightly different time
+  rollIndices.forEach((gi, li) => {
+    setTimeout(() => {
+      cycling.delete(li);
+      const el = document.getElementById(`die-${gi}`);
+      if (!el) return;
+      el.querySelector('.die-face').innerHTML = faceSVG(prerolledValues[li]);
+      el.classList.remove('rolling');
+      el.style.animationDelay = '';
+      el.classList.add('landing');
+      setTimeout(() => el.classList.remove('landing'), LAND_MS);
+    }, STAGGER_OFFSETS[li] || 0);
+  });
+
+  // Resolve after full animation window
+  setTimeout(() => {
+    clearInterval(cycleInterval);
+    rollIndices.forEach(gi => {
+      const el = document.getElementById(`die-${gi}`);
+      if (el) { el.classList.remove('rolling', 'landing'); el.style.animationDelay = ''; }
+    });
+    resolveRoll(rollIndices, prerolledValues);
   }, ROLL_MS);
 }
 
@@ -587,15 +629,15 @@ function applyRollRules(er, opts, rollIndices, dice) {
   return { mustClearFlash, clearingFlashValue, mustRollAll, diceStates, allUsed };
 }
 
-function resolveRoll(rollIndices) {
+function resolveRoll(rollIndices, prerolledValues) {
   const clearingValue = G.clearingFlashValue;
   G.clearingFlashValue = null;
   G.lastRollIndices = rollIndices;
 
-  // Roll the dice
-  rollIndices.forEach(i => {
-    G.dice[i].value = rollDie(G.dice[i].isBlack);
-    G.dice[i].state = 'rolled';
+  // Apply final values (pre-generated during animation, or roll fresh if not provided)
+  rollIndices.forEach((gi, li) => {
+    G.dice[gi].value = prerolledValues ? prerolledValues[li] : rollDie(G.dice[gi].isBlack);
+    G.dice[gi].state = 'rolled';
   });
 
   const rolledDice = rollIndices.map(i => G.dice[i]);
