@@ -281,3 +281,73 @@ describe('applyRollRules – combined rule interactions', () => {
     expect(rules.mustRollAll).toBe(false);
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// REGRESSION: "ROLL 0" bug
+//
+// When all 5 dice score, the caller uses `allUsed` to decide whether to show
+// "ROLL ALL 5". `mustRollAll` is derived from `allUsed && allFiveRequired`,
+// so with allFiveRequired:false, mustRollAll is false — but allUsed must still
+// be true so the UI offers ROLL ALL 5 (while also allowing banking).
+//
+// Before the fix, allUsed was never returned, and the onRoll rollAll condition
+// required allFiveRequired, causing a roll of 0 dice → instant wimpout.
+// ─────────────────────────────────────────────────────────────────────────────
+describe('regression – ROLL 0 / false wimpout on all-dice-scored reroll', () => {
+  function allFiveScore(opts) {
+    // [3,3,3,5,10]: flash of 3s + two individual scorers — all 5 dice score
+    const dice = [d(3), d(3), d(3), d(5), d(10)];
+    const G = createGame(['A', 'B'], opts);
+    const rollIndices = [0, 1, 2, 3, 4];
+    rollIndices.forEach((gi, li) => {
+      G.dice[gi].value = dice[li].value;
+      G.dice[gi].state = 'rolled';
+    });
+    const er = evaluateDice(dice, null);
+    return { rules: applyRollRules(er, G.opts, rollIndices, G.dice), er };
+  }
+
+  test('allUsed:true when all 5 dice score regardless of allFiveRequired', () => {
+    // allFiveRequired:true
+    expect(allFiveScore({ allFiveRequired: true }).rules.allUsed).toBe(true);
+    // allFiveRequired:false — allUsed must still be true so UI shows ROLL ALL 5
+    expect(allFiveScore({ allFiveRequired: false }).rules.allUsed).toBe(true);
+  });
+
+  test('mustRollAll:true only when allFiveRequired is on (bank blocked)', () => {
+    expect(allFiveScore({ allFiveRequired: true }).rules.mustRollAll).toBe(true);
+    expect(allFiveScore({ allFiveRequired: false }).rules.mustRollAll).toBe(false);
+  });
+
+  test('allUsed:false when at least one die does not score (no false ROLL ALL 5)', () => {
+    // [5, 2, 3]: only the 5 scores; two dice left to roll individually
+    const dice = [d(5), d(2), d(3)];
+    const G = createGame(['A', 'B']);
+    [0, 1, 2].forEach((gi, li) => {
+      G.dice[gi].value = dice[li].value;
+      G.dice[gi].state = 'rolled';
+    });
+    const er = evaluateDice(dice, null);
+    const rules = applyRollRules(er, G.opts, [0, 1, 2], G.dice);
+    expect(rules.allUsed).toBe(false);
+    expect(rules.mustRollAll).toBe(false);
+  });
+
+  test('allUsed:true when some dice were already committed and remaining all score', () => {
+    // dice 0,1 committed; dice 2,3,4 roll a flash of 6s — all 5 accounted for
+    const G = createGame(['A', 'B'], { allFiveRequired: false });
+    G.dice[0].state = 'committed';
+    G.dice[1].state = 'committed';
+    const flashDice = [d(6), d(6), d(6)];
+    [2, 3, 4].forEach((gi, li) => {
+      G.dice[gi].value = flashDice[li].value;
+      G.dice[gi].state = 'rolled';
+    });
+    const er = evaluateDice(flashDice, null);
+    const rules = applyRollRules(er, G.opts, [2, 3, 4], G.dice);
+    expect(rules.allUsed).toBe(true);
+    // allFiveRequired is off so mustRollAll is false — but allUsed is true
+    // so the UI still offers ROLL ALL 5 while also allowing bank
+    expect(rules.mustRollAll).toBe(false);
+  });
+});
