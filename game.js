@@ -99,10 +99,11 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      const theme = THEMES[btn.dataset.preset];
+      const preset = btn.dataset.preset;
+      const theme = THEMES[preset];
       if (!theme) return;
       applyTheme(theme);
-      saveTheme(theme);
+      savePreset(preset);
       buildThemeModal(); // rebuild pickers with new values
     });
   });
@@ -1001,7 +1002,11 @@ function setMessageClass(cls) {
 // ============================================================
 // THEMING
 // ============================================================
-const THEME_STORAGE_KEY = 'cosmicWimpoutTheme';
+// Two separate storage keys so switching presets never overwrites custom colors.
+const THEME_PRESET_KEY = 'cosmicWimpoutPreset'; // 'dark' | 'light' | 'custom'
+const THEME_CUSTOM_KEY = 'cosmicWimpoutCustom'; // full vars object for custom preset
+
+let activePreset = 'dark'; // in-memory; source of truth for button highlighting
 
 const THEMES = {
   dark: {
@@ -1093,45 +1098,54 @@ const COLOR_GROUPS = [
 function applyTheme(vars) {
   const root = document.documentElement;
   Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
-  // Toggle body class for light theme (hides star pseudo-element)
+  // Light theme hides the space-stars ::before pseudo-element
   document.body.classList.toggle('theme-light', vars['--bg'] === THEMES.light['--bg']);
 }
 
-function saveTheme(vars) {
-  try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(vars)); } catch (_) {}
+function savePreset(name) {
+  activePreset = name;
+  try { localStorage.setItem(THEME_PRESET_KEY, name); } catch (_) {}
+}
+
+function saveCustomTheme(vars) {
+  try { localStorage.setItem(THEME_CUSTOM_KEY, JSON.stringify(vars)); } catch (_) {}
+}
+
+function loadCustomTheme() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(THEME_CUSTOM_KEY));
+    if (saved && typeof saved === 'object') return saved;
+  } catch (_) {}
+  return null;
 }
 
 function loadSavedTheme() {
   try {
-    const saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY));
-    if (saved && typeof saved === 'object') { applyTheme(saved); return; }
-  } catch (_) {}
-  // Default: dark
-  applyTheme(THEMES.dark);
+    const preset = localStorage.getItem(THEME_PRESET_KEY) || 'dark';
+    activePreset = preset;
+    if (preset === 'custom') {
+      const custom = loadCustomTheme();
+      if (custom) { applyTheme(custom); return; }
+    }
+    applyTheme(THEMES[preset] || THEMES.dark);
+  } catch (_) {
+    applyTheme(THEMES.dark);
+  }
 }
 
 function currentThemeVars() {
   const style = getComputedStyle(document.documentElement);
   const result = {};
   COLOR_GROUPS.forEach(g => g.vars.forEach(({ key }) => {
-    // Prefer inline style (user-set) over computed (CSS file default)
     result[key] = document.documentElement.style.getPropertyValue(key).trim()
       || style.getPropertyValue(key).trim();
   }));
   return result;
 }
 
-function detectPreset(vars) {
-  for (const [name, theme] of Object.entries(THEMES)) {
-    if (Object.keys(theme).every(k => vars[k] === theme[k])) return name;
-  }
-  return null; // custom
-}
-
-function updatePresetButtons(vars) {
-  const active = detectPreset(vars);
+function updatePresetButtons() {
   document.querySelectorAll('.preset-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.preset === active);
+    btn.classList.toggle('active', btn.dataset.preset === activePreset);
   });
 }
 
@@ -1171,12 +1185,13 @@ function buildThemeModal() {
       input.addEventListener('input', () => {
         preview.style.background = input.value;
         document.documentElement.style.setProperty(key, input.value);
-        const updated = currentThemeVars();
-        updatePresetButtons(updated);
-        saveTheme(updated);
         if (key === '--bg') {
           document.body.classList.toggle('theme-light', input.value === THEMES.light['--bg']);
         }
+        // Any individual change → save to custom slot and activate Custom preset
+        saveCustomTheme(currentThemeVars());
+        savePreset('custom');
+        updatePresetButtons();
       });
 
       wrap.appendChild(preview);
@@ -1187,7 +1202,7 @@ function buildThemeModal() {
     });
   });
 
-  updatePresetButtons(vars);
+  updatePresetButtons();
 }
 
 function openThemeModal() {
