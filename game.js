@@ -111,11 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const preset = btn.dataset.preset;
-      const theme = THEMES[preset];
-      if (!theme) return;
-      applyTheme(theme);
+      if (preset === 'custom') {
+        applyTheme(loadCustomTheme() || THEMES.dark);
+      } else {
+        if (!THEMES[preset]) return;
+        applyTheme(THEMES[preset]);
+      }
       savePreset(preset);
-      buildThemeModal(); // rebuild pickers with new values
+      buildThemeModal();
     });
   });
   loadSavedTheme();
@@ -1160,10 +1163,24 @@ function updatePresetButtons() {
   });
 }
 
+function resetCustomTheme() {
+  applyTheme(THEMES.dark);
+  saveCustomTheme({ ...THEMES.dark });
+  savePreset('custom');
+  buildThemeModal();
+}
+
 function buildThemeModal() {
   const container = document.getElementById('theme-colors');
   container.innerHTML = '';
   const vars = currentThemeVars();
+
+  // Reset button — always visible so user can start fresh from dark defaults
+  const resetBtn = document.createElement('button');
+  resetBtn.className = 'theme-reset-btn';
+  resetBtn.textContent = 'Reset custom to dark defaults';
+  resetBtn.addEventListener('click', resetCustomTheme);
+  container.appendChild(resetBtn);
 
   COLOR_GROUPS.forEach(group => {
     const lbl = document.createElement('div');

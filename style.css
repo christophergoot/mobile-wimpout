@@ -868,6 +868,28 @@ body > * { position: relative; z-index: 1; }
   color: var(--accent);
 }
 
+.theme-reset-btn {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  margin-bottom: 14px;
+  background: none;
+  border: 1px dashed var(--card-border);
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s, color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.theme-reset-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .preset-btn.active {
   background: var(--accent);
   border-color: var(--accent);
