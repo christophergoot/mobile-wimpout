@@ -94,6 +94,110 @@
         </div>
 
         <button id="start-game-btn" class="btn btn-primary btn-wide">LAUNCH GAME</button>
+        <button id="help-btn" class="btn btn-ghost btn-wide">HOW TO PLAY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HOW TO PLAY MODAL ===== -->
+  <div id="help-modal" class="modal-overlay" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title">HOW TO PLAY</h2>
+        <button id="help-close-btn" class="modal-close">✕</button>
+      </div>
+      <div class="help-body">
+
+        <section class="help-section">
+          <h3 class="help-heading">GOAL</h3>
+          <p class="help-text">Be the first player to reach <strong>500 points</strong>. When someone hits 500, every other player gets one final <em>Last Licks</em> turn — highest score wins.</p>
+        </section>
+
+        <section class="help-section">
+          <h3 class="help-heading">THE DICE</h3>
+          <p class="help-text">4 white dice show: <strong>2, 3, 4, 5, 6, 10</strong><br>
+          1 black die shows: <strong>2, 3, 4, 5, 6, ☀ Sun</strong></p>
+        </section>
+
+        <section class="help-section">
+          <h3 class="help-heading">YOUR TURN</h3>
+          <ol class="help-list">
+            <li>Roll all 5 dice.</li>
+            <li>Keep one or more scoring dice (tap to select).</li>
+            <li><strong>Bank</strong> to lock in your points, or <strong>Roll</strong> the remaining dice to try for more.</li>
+            <li>If you <strong>Wimpout</strong> (no scoring dice), you lose all turn points and pass the dice.</li>
+          </ol>
+        </section>
+
+        <section class="help-section">
+          <h3 class="help-heading">SCORING</h3>
+          <div class="help-score-table">
+            <div class="help-score-row">
+              <span class="help-score-label">5</span>
+              <span class="help-score-val">5 pts</span>
+            </div>
+            <div class="help-score-row">
+              <span class="help-score-label">10</span>
+              <span class="help-score-val">10 pts</span>
+            </div>
+            <div class="help-score-row">
+              <span class="help-score-label">☀ Sun</span>
+              <span class="help-score-val">10 pts (acts as wild)</span>
+            </div>
+            <div class="help-score-row">
+              <span class="help-score-label">Flash (3-of-a-kind)</span>
+              <span class="help-score-val">Face × 10 pts</span>
+            </div>
+            <div class="help-score-row">
+              <span class="help-score-label">e.g. three 4s</span>
+              <span class="help-score-val">40 pts</span>
+            </div>
+          </div>
+          <p class="help-note">The Sun is wild — a pair plus the Sun counts as a Flash.</p>
+        </section>
+
+        <section class="help-section">
+          <h3 class="help-heading">SPECIAL ROLLS (all 5 dice)</h3>
+          <div class="help-score-table">
+            <div class="help-score-row help-score-row--special">
+              <span class="help-score-label">🌈 Sampler</span>
+              <span class="help-score-val">All 5 different → 25 pts, must roll all 5 again</span>
+            </div>
+            <div class="help-score-row help-score-row--special">
+              <span class="help-score-label">🚂 Freight Train</span>
+              <span class="help-score-val">All 5 same → Face × 100 pts, auto-banked</span>
+            </div>
+            <div class="help-score-row help-score-row--special">
+              <span class="help-score-label">🚂 Five 6s</span>
+              <span class="help-score-val">600 pts — Instant Win!</span>
+            </div>
+            <div class="help-score-row help-score-row--special help-score-row--danger">
+              <span class="help-score-label">💥 Supernova</span>
+              <span class="help-score-val">Five 10s — you're eliminated!</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="help-section">
+          <h3 class="help-heading">OPTIONAL RULES</h3>
+          <div class="help-option">
+            <div class="help-option-title">Entry Requirement <span class="help-default">on by default</span></div>
+            <div class="help-option-desc">A player must score <strong>35 or more points</strong> in a single turn to get on the scoreboard. Until then, all banked points are ignored.</div>
+          </div>
+          <div class="help-option">
+            <div class="help-option-title">Clear Flashes <span class="help-default">on by default</span></div>
+            <div class="help-option-desc">After rolling a Flash, you <strong>must roll the remaining dice</strong> at least once before you can bank. This forces you to risk more dice on the Flash roll.</div>
+          </div>
+          <div class="help-option">
+            <div class="help-option-title">All Five Scored <span class="help-default">on by default</span></div>
+            <div class="help-option-desc">If all 5 dice score in a single roll, you <strong>must roll all 5 again</strong> before banking. Keeps the tension going when every die is a scorer.</div>
+          </div>
+          <div class="help-option">
+            <div class="help-option-title">Flashes Optional <span class="help-default">off by default</span></div>
+            <div class="help-option-desc">Normally a Flash <em>must</em> be taken. With this rule enabled, you may <strong>ignore a Flash</strong> and score only individual dice from that roll instead (e.g., keep a 5 or 10 rather than the three-of-a-kind).</div>
+          </div>
+        </section>
+
       </div>
     </div>
   </div>

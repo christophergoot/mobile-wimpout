@@ -938,3 +938,109 @@ body > * { position: relative; z-index: 1; }
 
 /* Light theme: hide space-stars pseudo-element */
 body.theme-light::before { display: none; }
+
+/* ===== HOW TO PLAY MODAL ===== */
+.help-body {
+  overflow-y: auto;
+  padding: 18px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.help-section {}
+
+.help-heading {
+  font-family: var(--font-head);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.help-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.help-list {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  padding-left: 18px;
+}
+
+.help-list li { margin-bottom: 4px; }
+
+.help-note {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.help-score-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.help-score-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.help-score-row--special { background: rgba(192,96,255,0.08); }
+
+.help-score-row--danger {
+  background: rgba(255,64,96,0.1);
+  color: var(--red);
+}
+
+.help-score-label { color: var(--text); font-weight: 600; }
+
+.help-score-val {
+  color: var(--gold);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.help-score-row--danger .help-score-val { color: var(--red); }
+
+.help-option {
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.help-option:last-child { border-bottom: none; }
+
+.help-option-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.help-default {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-dim);
+  font-family: var(--font-head);
+  letter-spacing: 1px;
+}
+
+.help-option-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-dim);
+}

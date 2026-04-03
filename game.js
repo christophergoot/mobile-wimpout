@@ -91,6 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id).addEventListener('change', saveOpts);
   });
 
+  // How to Play
+  document.getElementById('help-btn').addEventListener('click', () => {
+    document.getElementById('help-modal').hidden = false;
+  });
+  document.getElementById('help-close-btn').addEventListener('click', () => {
+    document.getElementById('help-modal').hidden = true;
+  });
+  document.getElementById('help-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) document.getElementById('help-modal').hidden = true;
+  });
+
   // Theme
   document.getElementById('theme-btn').addEventListener('click', openThemeModal);
   document.getElementById('theme-close-btn').addEventListener('click', closeThemeModal);
