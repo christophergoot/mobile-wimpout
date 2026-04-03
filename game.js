@@ -512,6 +512,43 @@ function onRoll() {
   }, ROLL_MS);
 }
 
+/**
+ * Pure function: given an evaluateDice result, opts, and current dice,
+ * returns the new state flags and per-die state strings for the rolled indices.
+ * @param {object} er        - result of evaluateDice()
+ * @param {object} opts      - G.opts
+ * @param {number[]} rollIndices - global die indices that were just rolled
+ * @param {object[]} dice    - full G.dice array (read-only, used for allUsed check)
+ * @returns {{ mustClearFlash, clearingFlashValue, mustRollAll, diceStates }}
+ */
+function applyRollRules(er, opts, rollIndices, dice) {
+  // Per-die state for this roll (indexed by local roll position)
+  const diceStates = rollIndices.map((gi, li) => {
+    if (!er.canScore[li])            return 'rolled';    // non-scoring
+    if (er.flashIndices.includes(li))
+      return opts.flashOptional ? 'selected' : 'flash'; // flash die
+    return 'selected';                                   // individual scorer
+  });
+
+  // Flash clearing rule
+  let mustClearFlash   = false;
+  let clearingFlashValue = null;
+  if (er.flashValue !== null && opts.clearFlashRequired && !opts.flashOptional) {
+    mustClearFlash     = true;
+    clearingFlashValue = er.flashValue;
+  }
+
+  // All-five-scored rule: check after applying new states
+  const afterStates = dice.map((d, gi) => {
+    const li = rollIndices.indexOf(gi);
+    return li !== -1 ? diceStates[li] : d.state;
+  });
+  const allUsed = afterStates.every(s => s === 'committed' || s === 'selected' || s === 'flash');
+  const mustRollAll = allUsed && opts.allFiveRequired;
+
+  return { mustClearFlash, clearingFlashValue, mustRollAll, diceStates };
+}
+
 function resolveRoll(rollIndices) {
   const clearingValue = G.clearingFlashValue;
   G.clearingFlashValue = null;
@@ -535,28 +572,13 @@ function resolveRoll(rollIndices) {
   // ── Normal: mark dice states ──
   G.phase = 'choosing';
 
+  const rules = applyRollRules(er, G.opts, rollIndices, G.dice);
   rollIndices.forEach((gi, li) => {
-    if (!er.canScore[li]) {
-      G.dice[gi].state = 'rolled'; // non-scoring, stays as rolled (dim in render)
-    } else if (er.flashIndices.includes(li)) {
-      // When flashOptional, flash dice are toggleable (selected); otherwise locked (flash)
-      G.dice[gi].state = G.opts.flashOptional ? 'selected' : 'flash';
-    } else {
-      G.dice[gi].state = 'selected'; // individual scorer, auto-selected (can toggle)
-    }
+    G.dice[gi].state = rules.diceStates[li];
   });
-
-  // Flash requires clearing roll before banking (if rule enabled and flash is not optional)
-  if (er.flashValue !== null && G.opts.clearFlashRequired && !G.opts.flashOptional) {
-    G.mustClearFlash = true;
-    G.clearingFlashValue = er.flashValue;
-  }
-
-  // Check if all 5 dice are now accounted for (committed + selected/flash)
-  const allUsed = G.dice.every(d => d.state === 'committed' || d.state === 'selected' || d.state === 'flash');
-  if (allUsed && G.opts.allFiveRequired) {
-    G.mustRollAll = true;
-  }
+  G.mustClearFlash   = rules.mustClearFlash;
+  G.clearingFlashValue = rules.clearingFlashValue;
+  G.mustRollAll      = rules.mustRollAll;
 
   refreshTurnScore();
   renderDice();
@@ -945,4 +967,10 @@ function setMessageClass(cls) {
   const el = document.getElementById('msg-main');
   el.className = cls;
   if (G && G.savedMsg) G.savedMsg.cls = cls;
+}
+
+// ── Test exports (no-op in browser; Jest picks these up via CommonJS) ──
+/* istanbul ignore next */
+if (typeof module !== 'undefined') {
+  module.exports = { evaluateDice, applyRollRules, createGame };
 }

@@ -1,0 +1,5 @@
+#!/bin/sh
+# Run tests before every commit. Install via: npm run prepare
+set -e
+echo "Running tests before commit..."
+npm test

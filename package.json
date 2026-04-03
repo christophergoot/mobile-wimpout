@@ -1,0 +1,25 @@
+{
+  "name": "mobile-wimpout",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "jest --coverage",
+    "prepare": "cp hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "testMatch": ["**/__tests__/**/*.test.js"],
+    "collectCoverageFrom": ["game.js"],
+    "coverageThreshold": {
+      "global": {
+        "functions": 15,
+        "lines": 12
+      }
+    },
+    "coverageReporters": ["text", "lcov"]
+  }
+}
