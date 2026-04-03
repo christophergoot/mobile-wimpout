@@ -450,9 +450,12 @@ function startTurn() {
 function onRoll() {
   if (G.phase !== 'preroll' && G.phase !== 'choosing') return;
 
-  // Determine if we must roll all 5 (sampler flag OR all dice accounted for)
+  // Determine if we must roll all 5:
+  //   - sampler / all-five-required forced it (mustRollAll), OR
+  //   - there are simply no rolled dice left to pick from (all scored)
+  // allFiveRequired only controls whether banking is *blocked*, not whether rolling is possible.
   const diceToRollCount = G.dice.filter(d => d.state === 'rolled').length;
-  const rollAll = G.mustRollAll || (G.phase === 'choosing' && G.opts.allFiveRequired && diceToRollCount === 0);
+  const rollAll = G.mustRollAll || (G.phase === 'choosing' && diceToRollCount === 0);
 
   // Must keep at least one scoring die before rolling again (not applicable to forced roll-all)
   if (G.phase === 'choosing' && !rollAll) {
@@ -546,7 +549,7 @@ function applyRollRules(er, opts, rollIndices, dice) {
   const allUsed = afterStates.every(s => s === 'committed' || s === 'selected' || s === 'flash');
   const mustRollAll = allUsed && opts.allFiveRequired;
 
-  return { mustClearFlash, clearingFlashValue, mustRollAll, diceStates };
+  return { mustClearFlash, clearingFlashValue, mustRollAll, diceStates, allUsed };
 }
 
 function resolveRoll(rollIndices) {
@@ -590,8 +593,12 @@ function resolveRoll(rollIndices) {
       : (G.mustRollAll ? 'All dice used — must roll all 5 to clear!' : 'Must roll remaining dice to clear.');
     setMessage(`Flash of ${er.flashValue}s! (+${er.flashValue * 10} pts)`, flashSub);
     setMessageClass('msg-flash');
-  } else if (allUsed && G.opts.allFiveRequired) {
-    setMessage('All dice scored! Must roll all 5 again.', 'Banking disabled until you roll.');
+  } else if (rules.allUsed) {
+    if (G.opts.allFiveRequired) {
+      setMessage('All dice scored! Must roll all 5 again.', 'Banking disabled until you roll.');
+    } else {
+      setMessage('All dice scored! Roll all 5 to chain, or bank.', 'Roll All 5 to keep building your score.');
+    }
     setMessageClass('msg-sampler');
   } else {
     const hasToggleable = rollIndices.some(gi => {
@@ -913,12 +920,14 @@ function updateButtons() {
   if (G.phase === 'choosing') {
     // 'rolled' state = dice from current roll not yet selected (available to re-roll)
     const toRoll = G.dice.filter(d => d.state === 'rolled').length;
-    const forceRollAll = G.mustRollAll || (G.opts.allFiveRequired && toRoll === 0);
-    // Must keep at least one scoring die before rolling again
     const hasSelection = G.dice.some(d => d.state === 'selected' || d.state === 'flash');
+    // All dice are accounted for (nothing left to roll individually)
+    const allDiceUsed = toRoll === 0;
+    // Whether the bank button must be blocked (allFiveRequired forces another roll)
+    const forceRollAll = G.mustRollAll || (G.opts.allFiveRequired && allDiceUsed);
 
-    // Roll button
-    if (forceRollAll) {
+    // Roll button: show ROLL ALL 5 when forced OR when there are simply no individual dice to roll
+    if (G.mustRollAll || allDiceUsed) {
       rollBtn.disabled = false;
       rollBtn.textContent = 'ROLL ALL 5';
     } else {
@@ -926,7 +935,7 @@ function updateButtons() {
       rollBtn.textContent = toRoll < 5 ? `ROLL ${toRoll}` : 'ROLL';
     }
 
-    // Bank button — disabled when: must clear flash, forced roll-all, not enough to get in, or nothing selected
+    // Bank button — disabled when: must clear flash, forced roll-all, entry not met, or nothing selected
     const rollScore = calcCurrentRollScore();
     const total = G.committedScore + rollScore;
     const player = G.players[G.currentPlayerIndex];

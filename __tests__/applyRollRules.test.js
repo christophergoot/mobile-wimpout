@@ -198,6 +198,31 @@ describe('applyRollRules – diceStates', () => {
     expect(rules.diceStates[0]).toBe('selected'); // the 5
   });
 
+  test('allUsed is true when every die is committed/selected/flash', () => {
+    const dice = [d(3), d(3), d(3), d(5), d(10)];
+    const G = createGame(['A', 'B'], { allFiveRequired: false });
+    const rollIndices = [0, 1, 2, 3, 4];
+    rollIndices.forEach((gi, li) => {
+      G.dice[gi].value = dice[li].value;
+      G.dice[gi].state = 'rolled';
+    });
+    const er = evaluateDice(dice, null);
+    const rules = applyRollRules(er, G.opts, rollIndices, G.dice);
+    expect(rules.allUsed).toBe(true);
+  });
+
+  test('allUsed is false when some dice are not scored', () => {
+    const dice = [d(5), d(2), d(3)]; // 2 and 3 don't score
+    const G = createGame(['A', 'B']);
+    [0, 1, 2].forEach((gi, li) => {
+      G.dice[gi].value = dice[li].value;
+      G.dice[gi].state = 'rolled';
+    });
+    const er = evaluateDice(dice, null);
+    const rules = applyRollRules(er, G.opts, [0, 1, 2], G.dice);
+    expect(rules.allUsed).toBe(false);
+  });
+
   test('wimpout result: all dice stay "rolled" (caller handles wimpout separately)', () => {
     // applyRollRules is only called for normal results; but we test defensively
     const dice = [d(2), d(3), d(4)];
