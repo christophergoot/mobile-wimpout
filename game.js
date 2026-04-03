@@ -91,6 +91,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById(id).addEventListener('change', saveOpts);
   });
 
+  // Theme
+  document.getElementById('theme-btn').addEventListener('click', openThemeModal);
+  document.getElementById('theme-close-btn').addEventListener('click', closeThemeModal);
+  document.getElementById('theme-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeThemeModal(); // close on backdrop click
+  });
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const theme = THEMES[btn.dataset.preset];
+      if (!theme) return;
+      applyTheme(theme);
+      saveTheme(theme);
+      buildThemeModal(); // rebuild pickers with new values
+    });
+  });
+  loadSavedTheme();
+
   if (!restoreGameState()) {
     showSetupScreen();
   }
@@ -979,6 +996,207 @@ function setMessageClass(cls) {
   const el = document.getElementById('msg-main');
   el.className = cls;
   if (G && G.savedMsg) G.savedMsg.cls = cls;
+}
+
+// ============================================================
+// THEMING
+// ============================================================
+const THEME_STORAGE_KEY = 'cosmicWimpoutTheme';
+
+const THEMES = {
+  dark: {
+    '--bg':            '#07001a',
+    '--bg2':           '#0e0030',
+    '--bg3':           '#160048',
+    '--card':          '#1a0050',
+    '--card-border':   '#3a1080',
+    '--text':          '#e8d8ff',
+    '--text-dim':      '#8866bb',
+    '--accent':        '#c060ff',
+    '--accent2':       '#7020e0',
+    '--gold':          '#ffd060',
+    '--gold2':         '#ffaa00',
+    '--cyan':          '#40e0ff',
+    '--green':         '#40ff90',
+    '--red':           '#ff4060',
+    '--orange':        '#ff8030',
+    '--white-die-bg':  '#f0e8ff',
+    '--white-die-text':'#200060',
+    '--black-die-bg':  '#1a0040',
+    '--black-die-text':'#e040ff',
+  },
+  light: {
+    '--bg':            '#f2eeff',
+    '--bg2':           '#e8e0ff',
+    '--bg3':           '#ddd4fa',
+    '--card':          '#ffffff',
+    '--card-border':   '#c4a0f0',
+    '--text':          '#1a0040',
+    '--text-dim':      '#6040a0',
+    '--accent':        '#7020e0',
+    '--accent2':       '#4000b0',
+    '--gold':          '#b06000',
+    '--gold2':         '#d08000',
+    '--cyan':          '#0080b0',
+    '--green':         '#007830',
+    '--red':           '#cc0030',
+    '--orange':        '#c04000',
+    '--white-die-bg':  '#ffffff',
+    '--white-die-text':'#200060',
+    '--black-die-bg':  '#1a0040',
+    '--black-die-text':'#9030e0',
+  },
+};
+
+const COLOR_GROUPS = [
+  {
+    label: 'BACKGROUNDS',
+    vars: [
+      { key: '--bg',          name: 'Background' },
+      { key: '--bg2',         name: 'Surface' },
+      { key: '--bg3',         name: 'Panel' },
+      { key: '--card',        name: 'Card' },
+      { key: '--card-border', name: 'Border' },
+    ],
+  },
+  {
+    label: 'TEXT & ACCENT',
+    vars: [
+      { key: '--text',     name: 'Text' },
+      { key: '--text-dim', name: 'Dim Text' },
+      { key: '--accent',   name: 'Accent' },
+      { key: '--accent2',  name: 'Accent 2' },
+    ],
+  },
+  {
+    label: 'HIGHLIGHTS',
+    vars: [
+      { key: '--gold',   name: 'Gold' },
+      { key: '--gold2',  name: 'Gold 2' },
+      { key: '--cyan',   name: 'Flash' },
+      { key: '--green',  name: 'Score' },
+      { key: '--red',    name: 'Danger' },
+      { key: '--orange', name: 'Orange' },
+    ],
+  },
+  {
+    label: 'DICE',
+    vars: [
+      { key: '--white-die-bg',   name: 'Die Face' },
+      { key: '--white-die-text', name: 'Die Symbol' },
+      { key: '--black-die-bg',   name: 'Dark Die Face' },
+      { key: '--black-die-text', name: 'Dark Die Symbol' },
+    ],
+  },
+];
+
+function applyTheme(vars) {
+  const root = document.documentElement;
+  Object.entries(vars).forEach(([k, v]) => root.style.setProperty(k, v));
+  // Toggle body class for light theme (hides star pseudo-element)
+  document.body.classList.toggle('theme-light', vars['--bg'] === THEMES.light['--bg']);
+}
+
+function saveTheme(vars) {
+  try { localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(vars)); } catch (_) {}
+}
+
+function loadSavedTheme() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(THEME_STORAGE_KEY));
+    if (saved && typeof saved === 'object') { applyTheme(saved); return; }
+  } catch (_) {}
+  // Default: dark
+  applyTheme(THEMES.dark);
+}
+
+function currentThemeVars() {
+  const style = getComputedStyle(document.documentElement);
+  const result = {};
+  COLOR_GROUPS.forEach(g => g.vars.forEach(({ key }) => {
+    // Prefer inline style (user-set) over computed (CSS file default)
+    result[key] = document.documentElement.style.getPropertyValue(key).trim()
+      || style.getPropertyValue(key).trim();
+  }));
+  return result;
+}
+
+function detectPreset(vars) {
+  for (const [name, theme] of Object.entries(THEMES)) {
+    if (Object.keys(theme).every(k => vars[k] === theme[k])) return name;
+  }
+  return null; // custom
+}
+
+function updatePresetButtons(vars) {
+  const active = detectPreset(vars);
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.preset === active);
+  });
+}
+
+function buildThemeModal() {
+  const container = document.getElementById('theme-colors');
+  container.innerHTML = '';
+  const vars = currentThemeVars();
+
+  COLOR_GROUPS.forEach(group => {
+    const lbl = document.createElement('div');
+    lbl.className = 'color-group-label';
+    lbl.textContent = group.label;
+    container.appendChild(lbl);
+
+    group.vars.forEach(({ key, name }) => {
+      const val = vars[key] || '#888888';
+
+      const row = document.createElement('label');
+      row.className = 'color-row';
+
+      const namSpan = document.createElement('span');
+      namSpan.className = 'color-name';
+      namSpan.textContent = name;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'color-swatch-wrap';
+
+      const preview = document.createElement('div');
+      preview.className = 'color-preview';
+      preview.style.background = val;
+
+      const input = document.createElement('input');
+      input.type = 'color';
+      input.value = val;
+      input.dataset.varKey = key;
+
+      input.addEventListener('input', () => {
+        preview.style.background = input.value;
+        document.documentElement.style.setProperty(key, input.value);
+        const updated = currentThemeVars();
+        updatePresetButtons(updated);
+        saveTheme(updated);
+        if (key === '--bg') {
+          document.body.classList.toggle('theme-light', input.value === THEMES.light['--bg']);
+        }
+      });
+
+      wrap.appendChild(preview);
+      wrap.appendChild(input);
+      row.appendChild(namSpan);
+      row.appendChild(wrap);
+      container.appendChild(row);
+    });
+  });
+
+  updatePresetButtons(vars);
+}
+
+function openThemeModal() {
+  buildThemeModal();
+  document.getElementById('theme-modal').hidden = false;
+}
+
+function closeThemeModal() {
+  document.getElementById('theme-modal').hidden = true;
 }
 
 // ── Test exports (no-op in browser; Jest picks these up via CommonJS) ──

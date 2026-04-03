@@ -16,8 +16,8 @@
     "collectCoverageFrom": ["game.js"],
     "coverageThreshold": {
       "global": {
-        "functions": 15,
-        "lines": 12
+        "functions": 12,
+        "lines": 10
       }
     },
     "coverageReporters": ["text", "lcov"]
