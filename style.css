@@ -488,12 +488,6 @@ html, body {
 /* Depth shading only during tumble so side faces look 3D while spinning */
 .die.rolling .face-back, .die.rolling .face-right, .die.rolling .face-left  { filter: brightness(0.55); }
 .die.rolling .face-top,  .die.rolling .face-bottom                           { filter: brightness(0.75); }
-/* Transparent face backgrounds while rolling — dark game background shows through
-   the spinning cube instead of the white/cream die surface */
-/* During rolling: dark backgrounds blend with the game's space theme;
-   icons switch to light so they remain readable on the dark surface. */
-.die.rolling .face    { background: var(--bg); }
-.die.rolling .die-face { color: rgba(255, 255, 255, 0.8); }
 
 /* Die face content (value SVG/number) lives inside face-front */
 .die-face {
