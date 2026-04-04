@@ -390,11 +390,12 @@ function evaluateDice(dice, clearingValue) {
   let flashValue = null;
   let flashIndices = []; // local indices into `dice`
 
-  // Direct flash: 3+ of same value
+  // Direct flash: exactly 3 of the same value.
+  // (5-of-a-kind is caught by the freight-train check above before we get here.)
   for (const [vStr, cnt] of Object.entries(counts)) {
     const v = Number(vStr);
     if (v === clearingValue) continue;
-    if (cnt >= 3) {
+    if (cnt === 3) {
       flashValue = v;
       flashIndices = numericVals.map((nv, i) => nv === v ? i : null).filter(i => i !== null);
       break;

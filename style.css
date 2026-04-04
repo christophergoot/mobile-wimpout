@@ -419,22 +419,21 @@ html, body {
 
 #dice-row {
   display: flex;
-  gap: clamp(8px, 2vw, 14px);
+  gap: clamp(10px, 2.5vw, 16px);
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  perspective: 1400px;
-  perspective-origin: 50% 50%;
 }
 
-/* Outer wrapper: sizing, cursor, state classes only — no background/shadow */
+/* Outer wrapper — perspective is per-die so each cube is always viewed straight-on,
+   which keeps side faces edge-on (invisible) and prevents bleed into gaps. */
 .die {
   width: clamp(58px, 14vw, 74px);
   height: clamp(58px, 14vw, 74px);
   position: relative;
   cursor: pointer;
   user-select: none;
-  transform-style: preserve-3d; /* pass perspective from #dice-row through to .die-cube */
+  perspective: 1400px;
   transition: transform 0.2s ease, opacity 0.2s, cursor 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
@@ -461,15 +460,22 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
+  /* Outer shadow removed — it caused visible bleed through the gap when a face
+     was edge-on to the camera. Only the inset highlight remains per face.
+     Overall die shadow lives on .die instead. */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   border: 3px solid transparent;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .black-die .face {
   background: var(--black-die-bg);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 8px rgba(180,0,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
 }
+
+/* Overall die shadow on the wrapper — never bleeds into neighbour gaps */
+.die { box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
+.die.black-die { box-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 8px rgba(180,0,255,0.2); }
 
 /* Face positions — translateZ = 33px (≈ half of mid-range die size 66px) */
 .face-front  { transform: translateZ(33px); }
