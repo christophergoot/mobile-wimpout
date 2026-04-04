@@ -162,6 +162,7 @@ function saveOpts() {
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
     allFiveRequired:    document.getElementById('opt-all-five').checked,
     flashOptional:      document.getElementById('opt-flash-optional').checked,
+    suicidePact:        document.getElementById('opt-suicide-pact').checked,
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(opts));
 }
@@ -174,6 +175,7 @@ function loadOpts() {
       document.getElementById('opt-clear-flash').checked    = saved.clearFlashRequired !== false;
       document.getElementById('opt-all-five').checked       = saved.allFiveRequired    !== false;
       document.getElementById('opt-flash-optional').checked = !!saved.flashOptional;
+      document.getElementById('opt-suicide-pact').checked   = !!saved.suicidePact;
     }
   } catch (_) { /* ignore parse errors, keep defaults */ }
 }
@@ -227,6 +229,7 @@ function onStartGame() {
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
     allFiveRequired:    document.getElementById('opt-all-five').checked,
     flashOptional:      document.getElementById('opt-flash-optional').checked,
+    suicidePact:        document.getElementById('opt-suicide-pact').checked,
   };
   G = createGame(names, opts);
   document.getElementById('setup-screen').hidden = true;
@@ -280,6 +283,8 @@ function restoreGameState() {
     updateLastLicksBanner();
     updateButtons();
     if (G.phase === 'endturn') showNextBtn();
+    if (G.phase === 'pact-freight-choice' && G.evalResult) showFreightPactChoice(G.evalResult);
+    if (G.phase === 'pact-wimpout-choice') showWimpoutPactChoice();
     const msg = G.savedMsg;
     if (msg) {
       setMessage(msg.main, msg.sub);
@@ -296,12 +301,13 @@ function restoreGameState() {
 // ============================================================
 function createGame(playerNames, opts = {}) {
   return {
-    players: playerNames.map(name => ({ name, score: 0, eliminated: false })),
+    players: playerNames.map(name => ({ name, score: 0, eliminated: false, suicidePactToken: false })),
     opts: {
       entryRequired:      opts.entryRequired      !== false,
       clearFlashRequired: opts.clearFlashRequired !== false,
       allFiveRequired:    opts.allFiveRequired    !== false,
       flashOptional:      !!opts.flashOptional,
+      suicidePact:        !!opts.suicidePact,
     },
     currentPlayerIndex: 0,
 
@@ -737,9 +743,58 @@ function handleFreight(er) {
   }
   // Normal freight train — don't pre-add; bankAndFinish computes total
   refreshTurnScore();
+  if (G.opts.suicidePact) {
+    showFreightPactChoice(er);
+    return;
+  }
   setMessage(`🚂 FREIGHT TRAIN! Five ${er.value}s — ${er.score} pts`, 'Auto-banking…');
   setMessageClass('msg-freight');
   setTimeout(() => bankAndFinish(false), 1400);
+}
+
+function showFreightPactChoice(er) {
+  G.phase = 'pact-freight-choice';
+  setMessage(
+    `🚂 FREIGHT TRAIN! Five ${er.value}s — ${er.score} pts`,
+    'Invoke the Suicide Pact, or take the freight train?'
+  );
+  setMessageClass('msg-freight');
+  const btnA = document.getElementById('pact-a-btn');
+  const btnB = document.getElementById('pact-b-btn');
+  btnA.textContent = 'TAKE FREIGHT';
+  btnA.onclick = () => { hidePactRow(); bankAndFinish(false); };
+  btnB.textContent = 'INVOKE PACT';
+  btnB.onclick = () => { hidePactRow(); invokeSuicidePact(); };
+  document.getElementById('btn-pact-row').hidden = false;
+  saveGameState();
+}
+
+function invokeSuicidePact() {
+  const flashValue = WHITE_FACES[Math.floor(Math.random() * WHITE_FACES.length)];
+  const rollIdxs = G.lastRollIndices;
+  for (let i = 0; i < 3; i++) {
+    G.dice[rollIdxs[i]].value = flashValue;
+    G.dice[rollIdxs[i]].state = 'committed';
+  }
+  for (let i = 3; i < rollIdxs.length; i++) {
+    G.dice[rollIdxs[i]].state = 'rolled';
+  }
+  G.committedScore += flashValue * 10;
+  G.players[G.currentPlayerIndex].suicidePactToken = true;
+  G.phase = 'choosing';
+  G.evalResult = null;
+  G.mustClearFlash = false;
+  G.mustRollAll = false;
+  refreshTurnScore();
+  renderDice();
+  renderScoreBoard();
+  updateButtons();
+  setMessage(
+    `🤝 SUICIDE PACT! Flash of ${flashValue}s (+${flashValue * 10} pts)`,
+    'Pact token earned — roll remaining dice or bank.'
+  );
+  setMessageClass('msg-flash');
+  saveGameState();
 }
 
 function handleSampler() {
@@ -757,14 +812,72 @@ function handleSampler() {
 }
 
 function handleWimpout() {
-  G.phase = 'endturn';
   G.lastRollIndices.forEach(gi => { G.dice[gi].state = 'rolled'; });
   renderDice();
   const lost = G.committedScore;
   setMessage('💨 WIMPOUT!', lost > 0 ? `Lost ${lost} turn pts — pass the dice.` : 'No points scored — pass the dice.');
   setMessageClass('msg-wimpout');
+  if (G.players[G.currentPlayerIndex].suicidePactToken) {
+    showWimpoutPactChoice();
+    return;
+  }
+  G.phase = 'endturn';
   showNextBtn();
   saveGameState();
+}
+
+function showWimpoutPactChoice() {
+  G.phase = 'pact-wimpout-choice';
+  const lost = G.committedScore;
+  setMessage(
+    '💨 WIMPOUT!',
+    `Invoke the Pact to escape (lose ${lost} pts), or accept the wimpout?`
+  );
+  const btnA = document.getElementById('pact-a-btn');
+  const btnB = document.getElementById('pact-b-btn');
+  btnA.textContent = 'ACCEPT WIMPOUT';
+  btnA.onclick = () => {
+    hidePactRow();
+    G.phase = 'endturn';
+    showNextBtn();
+    saveGameState();
+  };
+  btnB.textContent = 'INVOKE PACT';
+  btnB.onclick = () => { hidePactRow(); invokeWimpoutPact(); };
+  document.getElementById('btn-pact-row').hidden = false;
+  saveGameState();
+}
+
+function invokeWimpoutPact() {
+  G.players[G.currentPlayerIndex].suicidePactToken = false;
+  const rollIdxs = G.lastRollIndices;
+  const flashCount = Math.min(3, rollIdxs.length);
+  for (let i = 0; i < flashCount; i++) {
+    G.dice[rollIdxs[i]].value = 10;
+    G.dice[rollIdxs[i]].state = 'committed';
+  }
+  for (let i = flashCount; i < rollIdxs.length; i++) {
+    G.dice[rollIdxs[i]].state = 'rolled';
+  }
+  G.committedScore += 100;
+  G.phase = 'choosing';
+  G.evalResult = null;
+  G.mustClearFlash = false;
+  G.mustRollAll = false;
+  refreshTurnScore();
+  renderDice();
+  renderScoreBoard();
+  updateButtons();
+  setMessage(
+    '🤝 PACT INVOKED! Flash of 10s (+100 pts)',
+    'Points saved — roll remaining dice or bank.'
+  );
+  setMessageClass('msg-flash');
+  saveGameState();
+}
+
+function hidePactRow() {
+  document.getElementById('btn-pact-row').hidden = true;
 }
 
 // ============================================================
@@ -988,8 +1101,9 @@ function renderScoreBoard() {
     chip.className = 'score-chip'
       + (i === G.currentPlayerIndex ? ' active-player' : '')
       + (p.eliminated ? ' eliminated' : '');
+    const tokenBadge = p.suicidePactToken ? ' 🤝' : '';
     chip.innerHTML = `
-      <span class="score-chip-name">${p.eliminated ? '💥' : ''}${p.name}</span>
+      <span class="score-chip-name">${p.eliminated ? '💥' : ''}${p.name}${tokenBadge}</span>
       <span class="score-chip-value">${p.score}</span>`;
     list.appendChild(chip);
   });
@@ -1022,7 +1136,8 @@ function updateButtons() {
     return;
   }
 
-  if (G.phase === 'rolling' || G.phase === 'endturn') {
+  if (G.phase === 'rolling' || G.phase === 'endturn' ||
+      G.phase === 'pact-freight-choice' || G.phase === 'pact-wimpout-choice') {
     rollBtn.disabled = true;
     bankBtn.disabled = true;
     return;
