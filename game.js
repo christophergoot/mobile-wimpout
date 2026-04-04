@@ -926,8 +926,13 @@ function renderDice() {
       requestAnimationFrame(() => cube.classList.remove('no-transition'));
     }
 
-    if (d.state === 'unrolled' || d.state === 'rolling') {
+    if (d.state === 'unrolled') {
       el.classList.add('unrolled');
+      return;
+    }
+    if (d.state === 'rolling') {
+      // .rolling class + animation are added by onRoll() AFTER renderDice.
+      // Just clear the old show class so the tumble starts from identity.
       return;
     }
 

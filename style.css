@@ -423,8 +423,8 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  perspective: 600px;
-  perspective-origin: 50% 40%;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
 }
 
 /* Outer wrapper: sizing, cursor, state classes only — no background/shadow */
