@@ -7,11 +7,11 @@ const WHITE_FACES = [2, 3, 4, 5, 6, 10];
 const BLACK_FACES = [2, 3, 4, 5, 6, 'sun'];
 const WINNING_SCORE = 500;
 const ENTRY_SCORE = 35;
-const ROLL_MS         = 750;
-const STAGGER_OFFSETS = [0, 85, 160, 225, 280]; // ms per die by position in rollIndices
-const FACE_CYCLE_MS   = 60;                      // face cycling interval
-const LAND_MS         = 150;                     // landing bounce duration
-const STORAGE_KEY     = 'cosmicWimpoutOpts';
+const TUMBLE_MS              = 650;   // die tumble animation duration
+const STAGGER_MS             = 60;    // ms between each die starting its tumble
+const REVEAL_TRANSITION_MS   = 220;   // CSS transition duration for snap-to-face
+const TUMBLE_VARIANTS        = ['tumble-a', 'tumble-b', 'tumble-c'];
+const STORAGE_KEY            = 'cosmicWimpoutOpts';
 const GAME_STATE_KEY  = 'cosmicWimpoutGame';
 
 // ============================================================
@@ -76,6 +76,27 @@ function faceSVG(val) {
 }
 
 // ============================================================
+// FACE MAPPING  (which value lives on each geometric face)
+// ============================================================
+// Cube face → die value assignment.  show-VALUE CSS classes rotate the cube
+// so the matching face points toward the viewer.
+const FACE_VALUES_WHITE = { 'face-front': 2, 'face-back': 3, 'face-right': 4, 'face-left': 5, 'face-top': 6, 'face-bottom': 10 };
+const FACE_VALUES_BLACK = { 'face-front': 2, 'face-back': 3, 'face-right': 4, 'face-left': 5, 'face-top': 6, 'face-bottom': 'sun' };
+
+/** Stamp SVG content on all 6 faces of every die — called once at startup. */
+function initDiceFaces() {
+  for (let i = 0; i < 5; i++) {
+    const el = document.getElementById(`die-${i}`);
+    if (!el) continue;
+    const faceMap = i === 4 ? FACE_VALUES_BLACK : FACE_VALUES_WHITE;
+    Object.entries(faceMap).forEach(([cls, val]) => {
+      const faceEl = el.querySelector(`.${cls}`);
+      if (faceEl) faceEl.innerHTML = `<span class="die-face">${faceSVG(val)}</span>`;
+    });
+  }
+}
+
+// ============================================================
 // STATE
 // ============================================================
 let G = null;
@@ -84,6 +105,7 @@ let G = null;
 // BOOTSTRAP
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
+  initDiceFaces();
   document.getElementById('start-game-btn').addEventListener('click', onStartGame);
   document.getElementById('add-player-btn').addEventListener('click', onAddPlayer);
   document.getElementById('roll-btn').addEventListener('click', onRoll);
@@ -538,9 +560,6 @@ function onRoll() {
   // Pre-generate all final values now so game logic is unaffected by timing
   const prerolledValues = rollIndices.map(gi => rollDie(G.dice[gi].isBlack));
 
-  // Face pools for cycling (white vs black die faces)
-  const cyclePool = rollIndices.map(gi => G.dice[gi].isBlack ? BLACK_FACES : WHITE_FACES);
-
   // Mark rolling state (renderDice reads this)
   rollIndices.forEach(gi => {
     G.dice[gi].value = null;
@@ -550,60 +569,49 @@ function onRoll() {
   renderDice();     // resets el.className — must run BEFORE we add .rolling
   updateButtons();
 
-  // Add .rolling AFTER renderDice so it isn't wiped by the className reset.
-  // Set animationDelay on .die-cube (the animated element), not on .die.
+  // Start tumble animation on each die (add .rolling AFTER renderDice so it sticks).
+  // Each die gets a random variant and staggered start.
   rollIndices.forEach((gi, li) => {
     const el = document.getElementById(`die-${gi}`);
     if (!el) return;
     const cube = el.querySelector('.die-cube');
     el.classList.add('rolling');
-    if (cube) cube.style.animationDelay = `${Math.floor(Math.random() * 40)}ms`;
+    if (cube) {
+      const variant  = TUMBLE_VARIANTS[Math.floor(Math.random() * TUMBLE_VARIANTS.length)];
+      const duration = TUMBLE_MS + Math.floor(Math.random() * 80);
+      cube.style.animationName           = variant;
+      cube.style.animationDuration       = `${duration}ms`;
+      cube.style.animationDelay          = `${li * STAGGER_MS}ms`;
+      cube.style.animationTimingFunction = 'cubic-bezier(0.4, 0, 0.6, 1)';
+      cube.style.animationFillMode       = 'none';
+    }
   });
 
-  // Track which dice are still cycling
-  const cycling = new Set(rollIndices.map((_, li) => li));
-
-  // Face cycling interval — writes random faces directly to DOM
-  const cycleInterval = setInterval(() => {
-    cycling.forEach(li => {
-      const gi = rollIndices[li];
-      const el = document.getElementById(`die-${gi}`);
-      if (!el) return;
-      const pool = cyclePool[li];
-      el.querySelector('.die-face').innerHTML = faceSVG(pool[Math.floor(Math.random() * pool.length)]);
-    });
-  }, FACE_CYCLE_MS);
-
-  // Staggered stop — each die reveals its real value at a slightly different time
+  // Staggered reveal — each die stops tumbling and snaps to its correct face
   rollIndices.forEach((gi, li) => {
     setTimeout(() => {
-      cycling.delete(li);
       const el = document.getElementById(`die-${gi}`);
       if (!el) return;
       const cube = el.querySelector('.die-cube');
-      el.querySelector('.die-face').innerHTML = faceSVG(prerolledValues[li]);
+      // Stop animation (cube returns to CSS-defined transform = identity)
       el.classList.remove('rolling');
-      if (cube) { cube.style.animationDelay = ''; cube.style.transform = ''; }
-      el.classList.add('landing');
-      setTimeout(() => {
-        el.classList.remove('landing');
-        if (cube) cube.style.transform = '';
-      }, LAND_MS);
-    }, STAGGER_OFFSETS[li] || 0);
+      if (cube) {
+        cube.style.animationName = '';
+        cube.style.animationDuration = '';
+        cube.style.animationDelay = '';
+        cube.style.animationTimingFunction = '';
+        cube.style.animationFillMode = '';
+        // Add show class — the CSS transition on .die-cube smoothly rotates to the correct face
+        cube.classList.add(`show-${prerolledValues[li]}`);
+      }
+    }, li * STAGGER_MS + TUMBLE_MS);
   });
 
-  // Resolve after full animation window
+  // Resolve after last die reveals + transition settles
+  const lastRevealAt = (rollIndices.length - 1) * STAGGER_MS + TUMBLE_MS;
   setTimeout(() => {
-    clearInterval(cycleInterval);
-    rollIndices.forEach(gi => {
-      const el = document.getElementById(`die-${gi}`);
-      if (!el) return;
-      el.classList.remove('rolling', 'landing');
-      const cube = el.querySelector('.die-cube');
-      if (cube) { cube.style.animationDelay = ''; cube.style.transform = ''; }
-    });
     resolveRoll(rollIndices, prerolledValues);
-  }, ROLL_MS);
+  }, lastRevealAt + REVEAL_TRANSITION_MS + 30);
 }
 
 /**
@@ -904,18 +912,24 @@ function renderDice() {
   G.dice.forEach((d, i) => {
     const el = document.getElementById(`die-${i}`);
     if (!el) return;
-    const face = el.querySelector('.die-face');
+    const cube = el.querySelector('.die-cube');
 
     el.className = 'die' + (d.isBlack ? ' black-die' : '');
     el.onclick = null;
 
-    if (d.state === 'unrolled' || d.state === 'rolling') {
-      el.classList.add('unrolled');
-      face.innerHTML = d.state === 'rolling' ? '<span class="die-num">?</span>' : '';
-      return;
+    // Update which face is showing — suppress transition to avoid re-spinning
+    if (cube) {
+      cube.classList.add('no-transition');
+      const prev = [...cube.classList].find(c => c.startsWith('show-'));
+      if (prev) cube.classList.remove(prev);
+      if (d.value !== null) cube.classList.add(`show-${d.value}`);
+      requestAnimationFrame(() => cube.classList.remove('no-transition'));
     }
 
-    face.innerHTML = faceSVG(d.value);
+    if (d.state === 'unrolled' || d.state === 'rolling') {
+      el.classList.add('unrolled');
+      return;
+    }
 
     switch (d.state) {
       case 'committed':

@@ -435,18 +435,20 @@ html, body {
   cursor: pointer;
   user-select: none;
   transform-style: preserve-3d; /* pass perspective from #dice-row through to .die-cube */
-  transition: opacity 0.2s, cursor 0.2s;
+  transition: transform 0.2s ease, opacity 0.2s, cursor 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 3D container — all transforms (roll animation + state lifts) go here */
+/* 3D container — rotation to show correct face + tumble animation go here */
 .die-cube {
   width: 100%;
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
   will-change: transform;
+  transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
 }
+.die-cube.no-transition { transition: none !important; }
 
 /* All 6 cube faces */
 .face {
@@ -477,9 +479,9 @@ html, body {
 .face-top    { transform: rotateX( 90deg) translateZ(33px); }
 .face-bottom { transform: rotateX(-90deg) translateZ(33px); }
 
-/* Non-front faces darkened for 3D shading illusion */
-.face-back, .face-right, .face-left   { filter: brightness(0.5); }
-.face-top,  .face-bottom               { filter: brightness(0.7); }
+/* Depth shading only during tumble so side faces look 3D while spinning */
+.die.rolling .face-back, .die.rolling .face-right, .die.rolling .face-left  { filter: brightness(0.55); }
+.die.rolling .face-top,  .die.rolling .face-bottom                           { filter: brightness(0.75); }
 
 /* Die face content (value SVG/number) lives inside face-front */
 .die-face {
@@ -512,49 +514,44 @@ html, body {
 
 /* ── Die states ── */
 
-.die.unrolled .face-front {
+/* Unrolled: all faces dark, content hidden */
+.die.unrolled .face {
   background: #1a1030;
   border: 2px dashed #3a2060;
   box-shadow: none;
 }
-.die.unrolled .face-back,
-.die.unrolled .face-right,
-.die.unrolled .face-left,
-.die.unrolled .face-top,
-.die.unrolled .face-bottom {
-  background: #0e0820;
-  box-shadow: none;
-}
 .die.unrolled .die-face { opacity: 0; }
 
-.die.held .face-front {
+/* Held: gold glow on all faces + lift on .die */
+.die.held .face {
   border-color: var(--gold);
   box-shadow: 0 0 14px rgba(255,200,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
 }
-.die.held .die-cube { transform: translateY(-4px); }
+.die.held { transform: translateY(-4px); }
 
-.die.flash-die .face-front {
+/* Flash: cyan glow + lift */
+.die.flash-die .face {
   border-color: var(--cyan);
   box-shadow: 0 0 16px rgba(64,224,255,0.6), 0 4px 12px rgba(0,0,0,0.4);
 }
-.die.flash-die .die-cube { transform: translateY(-4px); }
+.die.flash-die { transform: translateY(-4px); }
 
 .die.non-scoring {
   opacity: 0.35;
   cursor: not-allowed;
 }
 
-.die.scorable:not(.held):not(.flash-die) .face-front {
+.die.scorable:not(.held):not(.flash-die) .face {
   border-color: var(--green);
   box-shadow: 0 0 10px rgba(64,255,144,0.4), 0 4px 12px rgba(0,0,0,0.3);
 }
 .die.scorable:not(.held):not(.flash-die) { cursor: pointer; }
 
-.die.committed .face-front {
+.die.committed .face {
   border-color: var(--gold2);
   opacity: 0.75;
 }
-.die.committed .face-front::after {
+.die.committed .face::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -564,42 +561,52 @@ html, body {
 }
 .die.committed { cursor: not-allowed; }
 
-/* ── Rolling / landing animations ── */
+/* ── Rolling animation: 3 tumble variants ──
+   All end at exact multiples of 360° (= identity) so the cube returns to
+   its base orientation, then the show-VALUE class snaps smoothly to the
+   correct face via the CSS transition on .die-cube.
+   translateY arc = physical "throw into the air" feel. */
 
-@keyframes roll3D {
-  0%   { transform: rotateX(0deg)   rotateY(0deg)   rotateZ(0deg)   translateZ(0px);  }
-  15%  { transform: rotateX(160deg) rotateY(120deg) rotateZ(45deg)  translateZ(6px);  }
-  30%  { transform: rotateX(300deg) rotateY(260deg) rotateZ(90deg)  translateZ(-4px); }
-  48%  { transform: rotateX(440deg) rotateY(380deg) rotateZ(170deg) translateZ(5px);  }
-  63%  { transform: rotateX(550deg) rotateY(510deg) rotateZ(250deg) translateZ(-3px); }
-  78%  { transform: rotateX(640deg) rotateY(620deg) rotateZ(310deg) translateZ(2px);  }
-  90%  { transform: rotateX(695deg) rotateY(690deg) rotateZ(345deg) translateZ(0px);  }
-  100% { transform: rotateX(720deg) rotateY(720deg) rotateZ(360deg) translateZ(0px);  }
-}
-
-@keyframes rollFace {
-  0%        { opacity: 1; }
-  15%, 85%  { opacity: 0; }
-  100%      { opacity: 1; }
+/* Variant A: heavy X tumble */
+@keyframes tumble-a {
+  0%   { transform: translateY(0px)   rotateX(0deg)    rotateY(0deg);    }
+  20%  { transform: translateY(-24px) rotateX(280deg)  rotateY(70deg);   }
+  50%  { transform: translateY(-12px) rotateX(580deg)  rotateY(190deg);  }
+  80%  { transform: translateY(-3px)  rotateX(880deg)  rotateY(320deg);  }
+  100% { transform: translateY(0px)   rotateX(1080deg) rotateY(360deg);  }
 }
 
-@keyframes rollLand3D {
-  0%   { transform: translateY(0)    scale3d(1,    1,    1);    }
-  30%  { transform: translateY(-6px) scale3d(1.06, 1.06, 1.06); }
-  65%  { transform: translateY(2px)  scale3d(0.95, 0.95, 0.95); }
-  100% { transform: translateY(0)    scale3d(1,    1,    1);    }
+/* Variant B: heavy Y tumble */
+@keyframes tumble-b {
+  0%   { transform: translateY(0px)   rotateX(0deg)   rotateY(0deg);    }
+  20%  { transform: translateY(-26px) rotateX(80deg)  rotateY(220deg);  }
+  50%  { transform: translateY(-14px) rotateX(195deg) rotateY(500deg);  }
+  80%  { transform: translateY(-4px)  rotateX(305deg) rotateY(680deg);  }
+  100% { transform: translateY(0px)   rotateX(360deg) rotateY(720deg);  }
 }
 
-/* Animation targets .die-cube, not .die, so renderDice() class reset can't interfere */
-.die.rolling .die-cube {
-  animation: roll3D 0.45s ease-in-out forwards;
+/* Variant C: diagonal tumble */
+@keyframes tumble-c {
+  0%   { transform: translateY(0px)   rotateX(0deg)   rotateY(0deg);    }
+  20%  { transform: translateY(-22px) rotateX(190deg) rotateY(160deg);  }
+  50%  { transform: translateY(-10px) rotateX(430deg) rotateY(390deg);  }
+  80%  { transform: translateY(-2px)  rotateX(660deg) rotateY(590deg);  }
+  100% { transform: translateY(0px)   rotateX(720deg) rotateY(720deg);  }
 }
-.die.rolling .face-front .die-face {
-  animation: rollFace 0.45s ease-in-out;
-}
-.die.landing .die-cube {
-  animation: rollLand3D 0.15s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
-}
+
+/* While rolling: kill transition so animation plays cleanly */
+.die.rolling .die-cube { transition: none; }
+
+/* ── show-VALUE classes ──
+   Face mapping: front=2, back=3, right=4, left=5, top=6, bottom=10/sun
+   Rotation = inverse of face's own transform, bringing it to face the viewer. */
+.die-cube.show-2   { transform: rotateX(0deg)   rotateY(0deg);   }
+.die-cube.show-3   { transform: rotateX(0deg)   rotateY(180deg); }
+.die-cube.show-4   { transform: rotateX(0deg)   rotateY(-90deg); }
+.die-cube.show-5   { transform: rotateX(0deg)   rotateY(90deg);  }
+.die-cube.show-6   { transform: rotateX(-90deg) rotateY(0deg);   }
+.die-cube.show-10  { transform: rotateX(90deg)  rotateY(0deg);   }
+.die-cube.show-sun { transform: rotateX(90deg)  rotateY(0deg);   }
 
 #dice-hint {
   font-size: 11px;
