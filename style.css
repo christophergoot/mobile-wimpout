@@ -488,9 +488,6 @@ html, body {
 /* Depth shading only during tumble so side faces look 3D while spinning */
 .die.rolling .face-back, .die.rolling .face-right, .die.rolling .face-left  { filter: brightness(0.55); }
 .die.rolling .face-top,  .die.rolling .face-bottom                           { filter: brightness(0.75); }
-/* Transparent face backgrounds while rolling — dark game background shows through
-   the spinning cube instead of the white/cream die surface */
-.die.rolling .face { background: transparent; }
 
 /* Die face content (value SVG/number) lives inside face-front */
 .die-face {
