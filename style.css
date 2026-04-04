@@ -434,6 +434,7 @@ html, body {
   position: relative;
   cursor: pointer;
   user-select: none;
+  transform-style: preserve-3d; /* pass perspective from #dice-row through to .die-cube */
   transition: opacity 0.2s, cursor 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
