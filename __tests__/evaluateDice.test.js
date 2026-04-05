@@ -131,11 +131,24 @@ describe('evaluateDice – flash detection', () => {
     expect(r.flashValue).toBe(3);
   });
 
-  test('clearingValue blocks individual scoring of that face', () => {
-    // if clearing value is 5, a lone 5 cannot score
+  test('clearingValue does NOT block individual scoring of that face', () => {
+    // A 5 rolled while clearing a flash of 5s should still score individually
+    // (the clearing value only prevents a new flash of 5s, not individual 5s)
     const r = evaluateDice([d(5), d(2), d(3)], 5);
     const fiveIdx = 0;
-    expect(r.canScore[fiveIdx]).toBe(false);
+    expect(r.canScore[fiveIdx]).toBe(true);
+    expect(r.type).toBe('normal'); // not a wimpout — the 5 proves the flash
+  });
+
+  test('flash-proving: rerolling after flash of 5s, one die shows 5 → proves flash, can bank 55', () => {
+    // Scenario: player had flash of 5s (3 dice committed = 50 pts), rerolls 2 dice.
+    // One of the 2 rerolled dice is a 5. clearingValue=5 blocks a new flash of 5s
+    // but the individual 5 should score (+5 pts), allowing bank of 50+5=55 pts.
+    const r = evaluateDice([d(5), d(3)], 5);
+    expect(r.flashValue).toBeNull();    // no new flash of 5s
+    expect(r.canScore[0]).toBe(true);   // the 5 scores individually
+    expect(r.canScore[1]).toBe(false);  // 3 does not score
+    expect(r.type).toBe('normal');      // not a wimpout
   });
 });
 
@@ -222,8 +235,9 @@ describe('evaluateDice – wimpout', () => {
     expect(r.type).toBe('wimpout');
   });
 
-  test('wimpout when clearingValue blocks only potential scorer (5)', () => {
-    const r = evaluateDice([d(5), d(2), d(3)], 5);
+  test('clearingValue=5 with no other scorers and no 5 → wimpout', () => {
+    // Only non-scorers (2, 3, 4) — no 5 or 10, clearingValue does not matter
+    const r = evaluateDice([d(2), d(3), d(4)], 5);
     expect(r.type).toBe('wimpout');
   });
 

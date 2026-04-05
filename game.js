@@ -545,9 +545,11 @@ function evaluateDice(dice, clearingValue) {
   }
 
   // ── INDIVIDUAL SCORING ──
+  // clearingValue only blocks new flashes of that value (handled above); it does
+  // NOT block individual scoring — a 5 rolled while clearing a flash of 5s still
+  // scores as an individual 5 and proves the flash.
   const canScore = vals.map((v, i) => {
     if (flashIndices.includes(i)) return true;   // part of flash
-    if (v === clearingValue) return false;        // forbidden
     if (v === 'sun') return true;                 // sun scores as 10 individually
     return v === 5 || v === 10;                   // individual 5 or 10
   });
