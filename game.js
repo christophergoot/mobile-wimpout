@@ -164,8 +164,28 @@ const ANIMAL_TRACK_SVGS = {
   // ── 10: reuse cosmic numeral ──
   10: FACE_SVGS[10],
 
-  // ── sun (wild): standard flaming sun ──
-  sun: FACE_SVGS.sun,
+  // ── sun (wild): bare winter tree ──
+  sun: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-tree" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="31" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.1"/>
+    </filter></defs>
+    <g filter="url(#f-tree)" stroke="currentColor" stroke-linecap="round" fill="none">
+      <line x1="50" y1="120" x2="50" y2="75" stroke-width="7"/>
+      <line x1="50" y1="75"  x2="28" y2="50" stroke-width="4.5"/>
+      <line x1="50" y1="75"  x2="72" y2="50" stroke-width="4.5"/>
+      <line x1="50" y1="90"  x2="30" y2="72" stroke-width="3.5"/>
+      <line x1="50" y1="90"  x2="70" y2="72" stroke-width="3.5"/>
+      <line x1="28" y1="50"  x2="18" y2="32" stroke-width="3"/>
+      <line x1="28" y1="50"  x2="36" y2="28" stroke-width="2.5"/>
+      <line x1="72" y1="50"  x2="82" y2="32" stroke-width="3"/>
+      <line x1="72" y1="50"  x2="64" y2="28" stroke-width="2.5"/>
+      <line x1="36" y1="28"  x2="30" y2="16" stroke-width="2"/>
+      <line x1="36" y1="28"  x2="42" y2="14" stroke-width="2"/>
+      <line x1="64" y1="28"  x2="70" y2="16" stroke-width="2"/>
+      <line x1="64" y1="28"  x2="58" y2="14" stroke-width="2"/>
+    </g>
+  </svg>`,
 };
 
 const DICE_SETS = { cosmic: FACE_SVGS, tracks: ANIMAL_TRACK_SVGS };
