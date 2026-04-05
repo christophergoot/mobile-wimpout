@@ -164,26 +164,21 @@ const ANIMAL_TRACK_SVGS = {
   // ── 10: reuse cosmic numeral ──
   10: FACE_SVGS[10],
 
-  // ── sun (wild): bare winter tree ──
+  // ── sun (wild): campfire ──
   sun: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-tree" x="-8%" y="-8%" width="116%" height="116%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="31" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.1"/>
+    <defs><filter id="f-fire" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.3"/>
     </filter></defs>
-    <g filter="url(#f-tree)" stroke="currentColor" stroke-linecap="round" fill="none">
-      <line x1="50" y1="120" x2="50" y2="75" stroke-width="7"/>
-      <line x1="50" y1="75"  x2="28" y2="50" stroke-width="4.5"/>
-      <line x1="50" y1="75"  x2="72" y2="50" stroke-width="4.5"/>
-      <line x1="50" y1="90"  x2="30" y2="72" stroke-width="3.5"/>
-      <line x1="50" y1="90"  x2="70" y2="72" stroke-width="3.5"/>
-      <line x1="28" y1="50"  x2="18" y2="32" stroke-width="3"/>
-      <line x1="28" y1="50"  x2="36" y2="28" stroke-width="2.5"/>
-      <line x1="72" y1="50"  x2="82" y2="32" stroke-width="3"/>
-      <line x1="72" y1="50"  x2="64" y2="28" stroke-width="2.5"/>
-      <line x1="36" y1="28"  x2="30" y2="16" stroke-width="2"/>
-      <line x1="36" y1="28"  x2="42" y2="14" stroke-width="2"/>
-      <line x1="64" y1="28"  x2="70" y2="16" stroke-width="2"/>
-      <line x1="64" y1="28"  x2="58" y2="14" stroke-width="2"/>
+    <g filter="url(#f-fire)">
+      <ellipse cx="36" cy="104" rx="26" ry="7" fill="currentColor" transform="rotate(-28,36,104)"/>
+      <ellipse cx="64" cy="104" rx="26" ry="7" fill="currentColor" transform="rotate(28,64,104)"/>
+      <path fill="currentColor" d="M 50,95 C 32,85 28,68 36,54 C 38,72 44,70 46,60
+        C 44,50 40,38 50,22
+        C 60,38 56,50 54,60 C 56,70 62,72 64,54
+        C 72,68 68,85 50,95 Z"/>
+      <path fill="currentColor" d="M 50,82 C 42,74 40,62 46,54 C 47,62 50,60 50,52
+        C 50,60 53,62 54,54 C 60,62 58,74 50,82 Z" opacity="0.55"/>
     </g>
   </svg>`,
 };
