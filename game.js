@@ -19,54 +19,62 @@ const GAME_STATE_KEY  = 'cosmicWimpoutGame';
 // ============================================================
 const FACE_SVGS = {
 
-  // ── 2: Two galaxy-arm swirls ──
-  2: `<svg viewBox="0 0 40 40" width="100%" height="100%" fill="none">
-    <path stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
-          d="M8,12 C8,4 16,2 20,8 C24,14 22,22 16,22"/>
-    <path stroke="currentColor" stroke-width="2.8" stroke-linecap="round"
-          d="M32,28 C32,36 24,38 20,32 C16,26 18,18 24,18"/>
+  // ── 2: Two half-moons (opposing crescents, yin-yang style) ──
+  // Outer circles: (13,13) r=11 and (27,27) r=11
+  // Inner cutout circles: (17,13) r=8 and (23,27) r=8
+  // Intersection x for pair 1: 22.1; pair 2: 17.9
+  2: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <path fill="currentColor" d="M22.1,6.9 A11,11 0 1,0 22.1,19.1 A8,8 0 1,1 22.1,6.9 Z"/>
+    <path fill="currentColor" d="M17.9,20.9 A11,11 0 1,1 17.9,33.1 A8,8 0 1,0 17.9,20.9 Z"/>
   </svg>`,
 
-  // ── 3: Three upward triangles ──
+  // ── 3: Three pyramids (triforce arrangement, all pointing up) ──
   3: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <polygon fill="currentColor" points="20,4 28,17 12,17"/>
-    <polygon fill="currentColor" points="9,36 17,23 1,23"/>
-    <polygon fill="currentColor" points="31,36 39,23 23,23"/>
+    <polygon fill="currentColor" points="20,3 29,18 11,18"/>
+    <polygon fill="currentColor" points="11,21 20,36 2,36"/>
+    <polygon fill="currentColor" points="29,21 38,36 20,36"/>
   </svg>`,
 
-  // ── 4: Four lightning bolts (2×2 grid) ──
+  // ── 4: Four starbursts (4-pointed stars, 2×2 grid) ──
   4: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <polyline fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="13,3 8,11 13,11 8,19"/>
-    <polyline fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="32,3 27,11 32,11 27,19"/>
-    <polyline fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="13,21 8,29 13,29 8,37"/>
-    <polyline fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="32,21 27,29 32,29 27,37"/>
+    <polygon fill="currentColor" points="11,4 12.5,9.5 18,11 12.5,12.5 11,18 9.5,12.5 4,11 9.5,9.5"/>
+    <polygon fill="currentColor" points="29,4 30.5,9.5 36,11 30.5,12.5 29,18 27.5,12.5 22,11 27.5,9.5"/>
+    <polygon fill="currentColor" points="11,22 12.5,27.5 18,29 12.5,30.5 11,36 9.5,30.5 4,29 9.5,27.5"/>
+    <polygon fill="currentColor" points="29,22 30.5,27.5 36,29 30.5,30.5 29,36 27.5,30.5 22,29 27.5,27.5"/>
   </svg>`,
 
-  // ── 6: Six 4-pointed stars (2×3 grid) ──
+  // ── 5: Bold numeral with small 5-pointed star at lower-left ──
+  5: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <text x="22" y="30" font-family="Orbitron,sans-serif" font-size="30" font-weight="900"
+          text-anchor="middle" fill="currentColor">5</text>
+    <polygon fill="currentColor" points="9,25.5 9.8,27.9 12.3,27.9 10.3,29.4 11.1,31.8 9,30.3 6.9,31.8 7.7,29.4 5.7,27.9 8.2,27.9"/>
+  </svg>`,
+
+  // ── 6: Six 5-pointed stars (2×3 grid) ──
+  // Each star: outer R=5.5, inner r=2.1 (regular pentagram ratio ≈0.382)
   6: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <polygon fill="currentColor" points="11,2.5 12.6,6.4 16.5,8 12.6,9.6 11,13.5 9.4,9.6 5.5,8 9.4,6.4"/>
-    <polygon fill="currentColor" points="29,2.5 30.6,6.4 34.5,8 30.6,9.6 29,13.5 27.4,9.6 23.5,8 27.4,6.4"/>
-    <polygon fill="currentColor" points="11,14.5 12.6,18.4 16.5,20 12.6,21.6 11,25.5 9.4,21.6 5.5,20 9.4,18.4"/>
-    <polygon fill="currentColor" points="29,14.5 30.6,18.4 34.5,20 30.6,21.6 29,25.5 27.4,21.6 23.5,20 27.4,18.4"/>
-    <polygon fill="currentColor" points="11,26.5 12.6,30.4 16.5,32 12.6,33.6 11,37.5 9.4,33.6 5.5,32 9.4,30.4"/>
-    <polygon fill="currentColor" points="29,26.5 30.6,30.4 34.5,32 30.6,33.6 29,37.5 27.4,33.6 23.5,32 27.4,30.4"/>
+    <polygon fill="currentColor" points="11,2.5 12.2,6.3 16.2,6.3 13.0,8.6 14.2,12.5 11,10.1 7.8,12.5 9.0,8.6 5.8,6.3 9.8,6.3"/>
+    <polygon fill="currentColor" points="29,2.5 30.2,6.3 34.2,6.3 31.0,8.6 32.2,12.5 29,10.1 25.8,12.5 27.0,8.6 23.8,6.3 27.8,6.3"/>
+    <polygon fill="currentColor" points="11,14.5 12.2,18.3 16.2,18.3 13.0,20.6 14.2,24.5 11,22.1 7.8,24.5 9.0,20.6 5.8,18.3 9.8,18.3"/>
+    <polygon fill="currentColor" points="29,14.5 30.2,18.3 34.2,18.3 31.0,20.6 32.2,24.5 29,22.1 25.8,24.5 27.0,20.6 23.8,18.3 27.8,18.3"/>
+    <polygon fill="currentColor" points="11,26.5 12.2,30.3 16.2,30.3 13.0,32.6 14.2,36.5 11,34.1 7.8,36.5 9.0,32.6 5.8,30.3 9.8,30.3"/>
+    <polygon fill="currentColor" points="29,26.5 30.2,30.3 34.2,30.3 31.0,32.6 32.2,36.5 29,34.1 25.8,36.5 27.0,32.6 23.8,30.3 27.8,30.3"/>
   </svg>`,
 
-  // ── Flaming Sun: 8 organic flame rays + layered sun body ──
+  // ── 10: Bold numeral with small 5-pointed star at lower-left ──
+  10: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <text x="21" y="30" font-family="Orbitron,sans-serif" font-size="26" font-weight="900"
+          text-anchor="middle" fill="currentColor">10</text>
+    <polygon fill="currentColor" points="8,25 8.7,27.1 10.9,27.1 9.1,28.4 9.8,30.4 8,29.2 6.2,30.4 6.9,28.4 5.1,27.1 7.3,27.1"/>
+  </svg>`,
+
+  // ── Flaming Sun (wild): 8-pointed starburst ──
   sun: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <g transform="translate(20,20)">
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(45)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(90)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(135)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(180)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(225)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(270)"/>
-      <path fill="#ff8c00" d="M-3,-8 C-5,-13 -1,-19 0,-19 C1,-19 5,-13 3,-8 Z" transform="rotate(315)"/>
-      <circle r="9"   fill="#ffb300"/>
-      <circle r="5.5" fill="#ffe100"/>
-      <circle r="2.5" cx="-1.5" cy="-1.5" fill="white" opacity="0.55"/>
-    </g>
+    <polygon fill="currentColor" points="
+      20,2   23.4,11.7  32.7,7.3  28.3,16.6
+      38,20  28.3,23.4  32.7,32.7 23.4,28.3
+      20,38  16.6,28.3  7.3,32.7  11.7,23.4
+      2,20   11.7,16.6  7.3,7.3   16.6,11.7"/>
   </svg>`,
 };
 
