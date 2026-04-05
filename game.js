@@ -164,23 +164,8 @@ const ANIMAL_TRACK_SVGS = {
   // ── 10: reuse cosmic numeral ──
   10: FACE_SVGS[10],
 
-  // ── sun (wild): campfire ──
-  sun: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-fire" x="-8%" y="-8%" width="116%" height="116%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="7" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.3"/>
-    </filter></defs>
-    <g filter="url(#f-fire)">
-      <ellipse cx="36" cy="104" rx="26" ry="7" fill="currentColor" transform="rotate(-28,36,104)"/>
-      <ellipse cx="64" cy="104" rx="26" ry="7" fill="currentColor" transform="rotate(28,64,104)"/>
-      <path fill="currentColor" d="M 50,95 C 32,85 28,68 36,54 C 38,72 44,70 46,60
-        C 44,50 40,38 50,22
-        C 60,38 56,50 54,60 C 56,70 62,72 64,54
-        C 72,68 68,85 50,95 Z"/>
-      <path fill="currentColor" d="M 50,82 C 42,74 40,62 46,54 C 47,62 50,60 50,52
-        C 50,60 53,62 54,54 C 60,62 58,74 50,82 Z" opacity="0.55"/>
-    </g>
-  </svg>`,
+  // ── sun (wild): flaming sun — same as cosmic theme ──
+  sun: FACE_SVGS.sun,
 };
 
 const DICE_SETS = { cosmic: FACE_SVGS, tracks: ANIMAL_TRACK_SVGS };
