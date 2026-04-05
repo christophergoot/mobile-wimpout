@@ -167,6 +167,24 @@ html, body {
   color: var(--red);
 }
 
+.dice-set-select {
+  background: var(--bg2);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  padding: 6px 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dice-set-select:focus {
+  border-color: var(--accent);
+}
+
 /* ===== OPTIONS / TOGGLES ===== */
 .option-list {
   display: flex;

@@ -78,10 +78,97 @@ const FACE_SVGS = {
   </svg>`,
 };
 
-function faceSVG(val) {
-  if (FACE_SVGS[val]) return FACE_SVGS[val];
-  return `<span class="die-num">${val}</span>`;
-}
+// ============================================================
+// ANIMAL TRACKS DICE SET
+// ============================================================
+// SVG paths derived from toePath(w, h, cl): M 0,0 C -w,-h*0.18 -w*0.82,-h*0.55 -2.2,-(h-2)
+//   L -2,-h L 0,-(h+cl) L 2,-h L 2.2,-(h-2) C w*0.82,-h*0.55 w,-h*0.18 0,0 Z
+// Applied via transform="translate(px,py) rotate(angleDeg)"
+const ANIMAL_TRACK_SVGS = {
+
+  // ── 2: White-tailed Deer — two cloven hoof halves ──
+  2: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-deer" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="5" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.3"/>
+    </filter></defs>
+    <g filter="url(#f-deer)">
+      <path fill="currentColor" d="M 46,13 C 22,15 9,42 9,69 C 9,93 23,114 46,116 C 45,97 44,78 44,58 C 44,38 45,25 46,13 Z"/>
+      <path fill="currentColor" d="M 54,13 C 78,15 91,42 91,69 C 91,93 77,114 54,116 C 55,97 56,78 56,58 C 56,38 55,25 54,13 Z"/>
+    </g>
+  </svg>`,
+
+  // ── 3: Emu — three forward toes, pivot at (50,110) ──
+  // toePath(9,40,13): h1=7.2 h2=22  toePath(11,48,15): h1=8.64 h2=26.4
+  3: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-emu" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.1"/>
+    </filter></defs>
+    <g filter="url(#f-emu)">
+      <path fill="currentColor" transform="translate(50,110) rotate(-36)"
+        d="M 0,0 C -9,-7.2 -7.38,-22 -2.2,-38 L -2,-40 L 0,-53 L 2,-40 L 2.2,-38 C 7.38,-22 9,-7.2 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,110) rotate(0)"
+        d="M 0,0 C -11,-8.64 -9.02,-26.4 -2.2,-46 L -2,-48 L 0,-63 L 2,-48 L 2.2,-46 C 9.02,-26.4 11,-8.64 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,110) rotate(36)"
+        d="M 0,0 C -9,-7.2 -7.38,-22 -2.2,-38 L -2,-40 L 0,-53 L 2,-40 L 2.2,-38 C 7.38,-22 9,-7.2 0,0 Z"/>
+    </g>
+  </svg>`,
+
+  // ── 4: American Crow — three forward toes + rear hallux, pivot at (50,85) ──
+  // toePath(3,22,8): h1=3.96 h2=12.1  toePath(4,30,9): h1=5.4 h2=16.5  toePath(4,38,11): h1=6.84 h2=20.9
+  4: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-crow" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="0.9"/>
+    </filter></defs>
+    <g filter="url(#f-crow)">
+      <path fill="currentColor" transform="translate(50,85) rotate(180)"
+        d="M 0,0 C -3,-3.96 -2.46,-12.1 -2.2,-20 L -2,-22 L 0,-30 L 2,-22 L 2.2,-20 C 2.46,-12.1 3,-3.96 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,85) rotate(-46)"
+        d="M 0,0 C -4,-5.4 -3.28,-16.5 -2.2,-28 L -2,-30 L 0,-39 L 2,-30 L 2.2,-28 C 3.28,-16.5 4,-5.4 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,85) rotate(0)"
+        d="M 0,0 C -4,-6.84 -3.28,-20.9 -2.2,-36 L -2,-38 L 0,-49 L 2,-38 L 2.2,-36 C 3.28,-20.9 4,-6.84 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,85) rotate(46)"
+        d="M 0,0 C -4,-5.4 -3.28,-16.5 -2.2,-28 L -2,-30 L 0,-39 L 2,-30 L 2.2,-28 C 3.28,-16.5 4,-5.4 0,0 Z"/>
+    </g>
+  </svg>`,
+
+  // ── 5: reuse cosmic numeral (no animal track for this value) ──
+  5: FACE_SVGS[5],
+
+  // ── 6: Black Bear — five toe pads + heel pad, pivot at (50,93) ──
+  // toeAngles=[-148,-114,-90,-66,-32], dist=32, r=8, cl=11
+  // Toe positions (cx,cy) and triangle claw M...L...L...Z computed from bearClaw()
+  6: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-bear" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="11" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.4"/>
+    </filter></defs>
+    <g filter="url(#f-bear)">
+      <ellipse cx="43" cy="93" rx="18" ry="16" fill="currentColor"/>
+      <ellipse cx="57" cy="93" rx="18" ry="16" fill="currentColor"/>
+      <circle cx="22.9" cy="76.0" r="8" fill="currentColor"/>
+      <path fill="currentColor" d="M 17.3,69.8 L 6.8,66.0 L 14.9,73.8 Z"/>
+      <circle cx="37.0" cy="63.8" r="8" fill="currentColor"/>
+      <path fill="currentColor" d="M 35.8,55.5 L 29.3,46.4 L 31.6,57.4 Z"/>
+      <circle cx="50" cy="61" r="8" fill="currentColor"/>
+      <path fill="currentColor" d="M 52.3,53 L 50,42 L 47.7,53 Z"/>
+      <circle cx="63.0" cy="63.8" r="8" fill="currentColor"/>
+      <path fill="currentColor" d="M 68.4,57.4 L 70.7,46.4 L 64.2,55.5 Z"/>
+      <circle cx="77.1" cy="76.0" r="8" fill="currentColor"/>
+      <path fill="currentColor" d="M 85.1,73.8 L 93.3,66.0 L 82.7,69.8 Z"/>
+    </g>
+  </svg>`,
+
+  // ── 10: reuse cosmic numeral ──
+  10: FACE_SVGS[10],
+
+  // ── sun (wild): standard flaming sun ──
+  sun: FACE_SVGS.sun,
+};
+
+const DICE_SETS = { cosmic: FACE_SVGS, tracks: ANIMAL_TRACK_SVGS };
 
 // ============================================================
 // FACE MAPPING  (which value lives on each geometric face)
@@ -91,15 +178,19 @@ function faceSVG(val) {
 const FACE_VALUES_WHITE = { 'face-front': 2, 'face-back': 3, 'face-right': 4, 'face-left': 5, 'face-top': 6, 'face-bottom': 10 };
 const FACE_VALUES_BLACK = { 'face-front': 2, 'face-back': 3, 'face-right': 4, 'face-left': 5, 'face-top': 6, 'face-bottom': 'sun' };
 
-/** Stamp SVG content on all 6 faces of every die — called once at startup. */
-function initDiceFaces() {
+/** Stamp SVG content on all 6 faces of every die for the given dice set. */
+function refreshDiceFaces(setKey) {
+  const svgSet = DICE_SETS[setKey] || FACE_SVGS;
   for (let i = 0; i < 5; i++) {
     const el = document.getElementById(`die-${i}`);
     if (!el) continue;
     const faceMap = i === 4 ? FACE_VALUES_BLACK : FACE_VALUES_WHITE;
     Object.entries(faceMap).forEach(([cls, val]) => {
       const faceEl = el.querySelector(`.${cls}`);
-      if (faceEl) faceEl.innerHTML = `<span class="die-face">${faceSVG(val)}</span>`;
+      if (faceEl) {
+        const svg = svgSet[val] || FACE_SVGS[val] || `<span class="die-num">${val}</span>`;
+        faceEl.innerHTML = `<span class="die-face">${svg}</span>`;
+      }
     });
   }
 }
@@ -113,7 +204,7 @@ let G = null;
 // BOOTSTRAP
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
-  initDiceFaces();
+  refreshDiceFaces('cosmic');
   document.getElementById('start-game-btn').addEventListener('click', onStartGame);
   document.getElementById('add-player-btn').addEventListener('click', onAddPlayer);
   document.getElementById('roll-btn').addEventListener('click', onRoll);
@@ -198,10 +289,12 @@ function showSetupScreen() {
     <div class="player-field">
       <span class="player-num">1</span>
       <input type="text" class="player-name-input" placeholder="Player 1" maxlength="14" autocomplete="off">
+      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
     </div>
     <div class="player-field">
       <span class="player-num">2</span>
       <input type="text" class="player-name-input" placeholder="Player 2" maxlength="14" autocomplete="off">
+      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
     </div>`;
   document.getElementById('add-player-btn').disabled = false;
   loadOpts();
@@ -216,6 +309,7 @@ function onAddPlayer() {
   div.innerHTML = `
     <span class="player-num">${count}</span>
     <input type="text" class="player-name-input" placeholder="Player ${count}" maxlength="14" autocomplete="off">
+    <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
     <button class="remove-player-btn" onclick="removePlayer(this)">✕</button>`;
   fields.appendChild(div);
   if (count >= 6) document.getElementById('add-player-btn').disabled = true;
@@ -232,6 +326,7 @@ function onStartGame() {
   const inputs = Array.from(document.querySelectorAll('.player-name-input'));
   const names = inputs.map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
   if (names.length < 2) { alert('Need at least 2 players!'); return; }
+  const diceSets = Array.from(document.querySelectorAll('.dice-set-select')).map(sel => sel.value);
   const opts = {
     entryRequired:      document.getElementById('opt-entry').checked,
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
@@ -239,7 +334,7 @@ function onStartGame() {
     flashOptional:      document.getElementById('opt-flash-optional').checked,
     suicidePact:        document.getElementById('opt-suicide-pact').checked,
   };
-  G = createGame(names, opts);
+  G = createGame(names, opts, diceSets);
   document.getElementById('setup-screen').hidden = true;
   document.getElementById('game-screen').hidden = false;
   document.getElementById('gameover-screen').hidden = true;
@@ -281,6 +376,7 @@ function restoreGameState() {
     const snapshot = JSON.parse(raw);
     if (!snapshot || !snapshot.players || snapshot.phase === 'gameover') return false;
     G = { ...snapshot, lastLicksDone: new Set(snapshot.lastLicksDone) };
+    refreshDiceFaces((G.players[G.currentPlayerIndex] || {}).diceSet || 'cosmic');
     document.getElementById('setup-screen').hidden = true;
     document.getElementById('game-screen').hidden = false;
     document.getElementById('gameover-screen').hidden = true;
@@ -307,9 +403,9 @@ function restoreGameState() {
 // ============================================================
 // GAME MODEL
 // ============================================================
-function createGame(playerNames, opts = {}) {
+function createGame(playerNames, opts = {}, diceSets = []) {
   return {
-    players: playerNames.map(name => ({ name, score: 0, eliminated: false, suicidePactToken: false })),
+    players: playerNames.map((name, i) => ({ name, score: 0, eliminated: false, suicidePactToken: false, diceSet: diceSets[i] || 'cosmic' })),
     opts: {
       entryRequired:      opts.entryRequired      !== false,
       clearFlashRequired: opts.clearFlashRequired !== false,
@@ -492,6 +588,7 @@ function refreshTurnScore() {
 // ============================================================
 function startTurn() {
   const player = G.players[G.currentPlayerIndex];
+  refreshDiceFaces(player.diceSet || 'cosmic');
   G.committedScore = 0;
   G.phase = 'preroll';
   G.evalResult = null;
