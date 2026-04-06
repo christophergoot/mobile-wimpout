@@ -168,7 +168,124 @@ const ANIMAL_TRACK_SVGS = {
   sun: FACE_SVGS.sun,
 };
 
-const DICE_SETS = { cosmic: FACE_SVGS, tracks: ANIMAL_TRACK_SVGS };
+// ============================================================
+// ARCADE DICE SET
+// ============================================================
+const ARCADE_SVGS = {
+
+  // ── 2: two pixel hearts (diagonal, top-right + bottom-left) ──
+  2: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <circle fill="currentColor" cx="24" cy="12" r="3"/>
+    <circle fill="currentColor" cx="30" cy="12" r="3"/>
+    <polygon fill="currentColor" points="21,12 33,12 27,19.5"/>
+    <circle fill="currentColor" cx="10" cy="28" r="3"/>
+    <circle fill="currentColor" cx="16" cy="28" r="3"/>
+    <polygon fill="currentColor" points="7,28 19,28 13,35.5"/>
+  </svg>`,
+
+  // ── 3: three coins (circles) in triangle layout ──
+  3: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <circle fill="currentColor" cx="20" cy="10" r="5.5"/>
+    <circle fill="currentColor" cx="10" cy="28" r="5.5"/>
+    <circle fill="currentColor" cx="30" cy="28" r="5.5"/>
+  </svg>`,
+
+  // ── 4: four pixel diamonds in 2×2 grid ──
+  4: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <polygon fill="currentColor" points="11,6 16,11 11,16 6,11"/>
+    <polygon fill="currentColor" points="29,6 34,11 29,16 24,11"/>
+    <polygon fill="currentColor" points="11,24 16,29 11,34 6,29"/>
+    <polygon fill="currentColor" points="29,24 34,29 29,34 24,29"/>
+  </svg>`,
+
+  // ── 5: space invader alien (9×7 pixel grid, cell=4) ──
+  5: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <rect fill="currentColor" x="6"  y="5"  width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="5"  width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="9"  width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="9"  width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="2"  y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="34" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="2"  y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="34" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="29" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="29" width="4" height="4"/>
+  </svg>`,
+
+  // ── 6: six bullet/capsule shapes (rounded rects) in 2×3 grid ──
+  6: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <rect fill="currentColor" x="12" y="4"  width="6" height="10" rx="3"/>
+    <rect fill="currentColor" x="22" y="4"  width="6" height="10" rx="3"/>
+    <rect fill="currentColor" x="12" y="16" width="6" height="10" rx="3"/>
+    <rect fill="currentColor" x="22" y="16" width="6" height="10" rx="3"/>
+    <rect fill="currentColor" x="12" y="28" width="6" height="10" rx="3"/>
+    <rect fill="currentColor" x="22" y="28" width="6" height="10" rx="3"/>
+  </svg>`,
+
+  // ── 10: pixel "10" numeral drawn with rects (pixel size 3) ──
+  10: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <rect fill="currentColor" x="12" y="10" width="3" height="3"/>
+    <rect fill="currentColor" x="9"  y="13" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="13" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="16" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="19" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="22" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="25" width="3" height="3"/>
+    <rect fill="currentColor" x="9"  y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="12" y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="15" y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="10" width="3" height="3"/>
+    <rect fill="currentColor" x="23" y="10" width="3" height="3"/>
+    <rect fill="currentColor" x="26" y="10" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="10" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="13" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="13" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="16" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="16" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="19" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="19" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="22" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="22" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="25" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="25" width="3" height="3"/>
+    <rect fill="currentColor" x="20" y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="23" y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="26" y="28" width="3" height="3"/>
+    <rect fill="currentColor" x="29" y="28" width="3" height="3"/>
+  </svg>`,
+
+  // ── sun (wild): arcade joystick — ball, stick, base ──
+  sun: `<svg viewBox="0 0 40 40" width="100%" height="100%">
+    <circle fill="currentColor" cx="20" cy="8" r="5"/>
+    <rect fill="currentColor" x="18" y="12" width="4" height="15"/>
+    <rect fill="currentColor" x="6" y="27" width="28" height="10" rx="3"/>
+  </svg>`,
+};
+
+const DICE_SETS = { cosmic: FACE_SVGS, tracks: ANIMAL_TRACK_SVGS, arcade: ARCADE_SVGS };
 
 // ============================================================
 // FACE MAPPING  (which value lives on each geometric face)
@@ -289,12 +406,12 @@ function showSetupScreen() {
     <div class="player-field">
       <span class="player-num">1</span>
       <input type="text" class="player-name-input" placeholder="Player 1" maxlength="14" autocomplete="off">
-      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
+      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
     </div>
     <div class="player-field">
       <span class="player-num">2</span>
       <input type="text" class="player-name-input" placeholder="Player 2" maxlength="14" autocomplete="off">
-      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
+      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
     </div>`;
   document.getElementById('add-player-btn').disabled = false;
   loadOpts();
@@ -309,7 +426,7 @@ function onAddPlayer() {
   div.innerHTML = `
     <span class="player-num">${count}</span>
     <input type="text" class="player-name-input" placeholder="Player ${count}" maxlength="14" autocomplete="off">
-    <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option></select>
+    <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
     <button class="remove-player-btn" onclick="removePlayer(this)">✕</button>`;
   fields.appendChild(div);
   if (count >= 6) document.getElementById('add-player-btn').disabled = true;
