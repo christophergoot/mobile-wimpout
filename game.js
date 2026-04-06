@@ -617,14 +617,17 @@ function evaluateDice(dice, clearingValue) {
   let flashValue = null;
   let flashIndices = []; // local indices into `dice`
 
-  // Direct flash: 3 or more of the same value.
+  // Direct flash: exactly 3 of the same value form a flash.
+  // When 4+ of the same value are rolled, only 3 are taken as flash dice;
+  // the extras are left over (non-scoring, rerollable).
   // (5-of-a-kind is caught by the freight-train check above before we get here.)
   for (const [vStr, cnt] of Object.entries(counts)) {
     const v = Number(vStr);
     if (v === clearingValue) continue;
     if (cnt >= 3) {
       flashValue = v;
-      flashIndices = numericVals.map((nv, i) => nv === v ? i : null).filter(i => i !== null);
+      const allMatching = numericVals.map((nv, i) => nv === v ? i : null).filter(i => i !== null);
+      flashIndices = allMatching.slice(0, 3); // only 3 dice form the flash
       break;
     }
   }
