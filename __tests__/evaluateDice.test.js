@@ -76,7 +76,7 @@ describe('evaluateDice – sampler', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FLASH  (exactly 3 of same numeric value — 4-of-a-kind is NOT a flash)
+// FLASH  (3 or more of same numeric value)
 // ─────────────────────────────────────────────────────────────────────────────
 describe('evaluateDice – flash detection', () => {
   test('three of the same value → flash', () => {
@@ -86,29 +86,39 @@ describe('evaluateDice – flash detection', () => {
     expect(r.flashIndices).toHaveLength(3);
   });
 
-  test('four of the same value → NOT a flash (4-of-a-kind does not score)', () => {
+  test('four of the same value → flash (all four dice are flash dice)', () => {
     const r = evaluateDice([d(6), d(6), d(6), d(6)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.flashIndices).toHaveLength(0);
-  });
-
-  test('four of a kind produces wimpout when no other scoring dice', () => {
-    const r = evaluateDice([d(4), d(4), d(4), d(4)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.type).toBe('wimpout');
-    expect(r.canScore.every(v => !v)).toBe(true);
-  });
-
-  test('four of a kind + lone 5 → no flash, but the 5 still scores individually', () => {
-    const r = evaluateDice([d(3), d(3), d(3), d(3), d(5)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.canScore[4]).toBe(true);   // the 5 scores
-    expect(r.canScore.slice(0, 4).every(v => !v)).toBe(true); // four 3s do not
+    expect(r.flashValue).toBe(6);
+    expect(r.flashIndices).toHaveLength(4);
     expect(r.type).toBe('normal');
   });
 
-  test('three of a kind + one duplicate (4 dice total) still flashes on the triple', () => {
-    // Rolling 4 dice: three 6s + one 2 is still a flash of 6s (count === 3)
+  test('four 6s + non-scoring die → flash of sixes, not wimpout (regression: was incorrectly wimpout)', () => {
+    // Bug: rolling 6,6,6,6,4 was reported as wimpout; should be a flash of sixes
+    const r = evaluateDice([d(6), d(6), d(6), d(6), d(4)], null);
+    expect(r.flashValue).toBe(6);
+    expect(r.flashIndices).toHaveLength(4);
+    expect(r.type).toBe('normal');
+    expect(r.canScore[4]).toBe(false); // the 4 does not score individually
+  });
+
+  test('four of a kind → flash (not wimpout) when no other scoring dice', () => {
+    const r = evaluateDice([d(4), d(4), d(4), d(4)], null);
+    expect(r.flashValue).toBe(4);
+    expect(r.type).toBe('normal');
+    expect(r.flashIndices).toHaveLength(4);
+  });
+
+  test('four of a kind + lone 5 → flash of that value, 5 also scores individually', () => {
+    const r = evaluateDice([d(3), d(3), d(3), d(3), d(5)], null);
+    expect(r.flashValue).toBe(3);
+    expect(r.flashIndices).toHaveLength(4); // all four 3s are flash dice
+    expect(r.canScore[4]).toBe(true);        // the 5 scores individually too
+    expect(r.type).toBe('normal');
+  });
+
+  test('three of a kind + one different (4 dice total) → flash', () => {
+    // Rolling 4 dice: three 6s + one 2 is a flash of 6s
     const r = evaluateDice([d(6), d(6), d(6), d(2)], null);
     expect(r.flashValue).toBe(6);
     expect(r.flashIndices).toHaveLength(3);
