@@ -198,41 +198,25 @@ const ARCADE_SVGS = {
     <polygon fill="currentColor" points="29,24 34,29 29,34 24,29"/>
   </svg>`,
 
-  // ── 5: space invader alien (9×7 pixel grid, cell=4) ──
+  // ── 5: pixel numeral "5" (5×6 grid, cell=4) ──
   5: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <rect fill="currentColor" x="6"  y="5"  width="4" height="4"/>
-    <rect fill="currentColor" x="30" y="5"  width="4" height="4"/>
-    <rect fill="currentColor" x="10" y="9"  width="4" height="4"/>
-    <rect fill="currentColor" x="26" y="9"  width="4" height="4"/>
-    <rect fill="currentColor" x="6"  y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="10" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="14" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="18" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="22" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="26" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="30" y="13" width="4" height="4"/>
-    <rect fill="currentColor" x="2"  y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="6"  y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="14" y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="18" y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="22" y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="30" y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="34" y="17" width="4" height="4"/>
-    <rect fill="currentColor" x="2"  y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="6"  y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="10" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="14" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="18" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="22" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="26" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="30" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="34" y="21" width="4" height="4"/>
-    <rect fill="currentColor" x="10" y="25" width="4" height="4"/>
-    <rect fill="currentColor" x="14" y="25" width="4" height="4"/>
-    <rect fill="currentColor" x="22" y="25" width="4" height="4"/>
-    <rect fill="currentColor" x="26" y="25" width="4" height="4"/>
-    <rect fill="currentColor" x="6"  y="29" width="4" height="4"/>
-    <rect fill="currentColor" x="30" y="29" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="8"  width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="8"  width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="8"  width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="8"  width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="8"  width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="12" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="16" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="16" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="16" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="16" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="20" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="24" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="28" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="28" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="28" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="28" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="28" width="4" height="4"/>
   </svg>`,
 
   // ── 6: six bullet/capsule shapes (rounded rects) in 2×3 grid ──
@@ -277,11 +261,41 @@ const ARCADE_SVGS = {
     <rect fill="currentColor" x="29" y="28" width="3" height="3"/>
   </svg>`,
 
-  // ── sun (wild): arcade joystick — ball, stick, base ──
+  // ── sun (wild): space invader alien (9×7 pixel grid, cell=4) ──
   sun: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <circle fill="currentColor" cx="20" cy="8" r="5"/>
-    <rect fill="currentColor" x="18" y="12" width="4" height="15"/>
-    <rect fill="currentColor" x="6" y="27" width="28" height="10" rx="3"/>
+    <rect fill="currentColor" x="6"  y="5"  width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="5"  width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="9"  width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="9"  width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="13" width="4" height="4"/>
+    <rect fill="currentColor" x="2"  y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="34" y="17" width="4" height="4"/>
+    <rect fill="currentColor" x="2"  y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="18" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="34" y="21" width="4" height="4"/>
+    <rect fill="currentColor" x="10" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="14" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="22" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="26" y="25" width="4" height="4"/>
+    <rect fill="currentColor" x="6"  y="29" width="4" height="4"/>
+    <rect fill="currentColor" x="30" y="29" width="4" height="4"/>
   </svg>`,
 };
 
