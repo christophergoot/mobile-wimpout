@@ -1704,5 +1704,7 @@ function closeThemeModal() {
 // ── Test exports (no-op in browser; Jest picks these up via CommonJS) ──
 /* istanbul ignore next */
 if (typeof module !== 'undefined') {
-  module.exports = { evaluateDice, applyRollRules, createGame };
+  module.exports = { evaluateDice, applyRollRules, createGame,
+                     getDiceThemePreview, renderDiceThemeBtn,
+                     closeDiceThemePicker, showDiceThemePicker };
 }
