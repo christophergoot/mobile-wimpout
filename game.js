@@ -312,6 +312,43 @@ function refreshDiceFaces(setKey) {
   }
 }
 
+function getDiceThemePreview(setKey) {
+  return (DICE_SETS[setKey] || FACE_SVGS)[6];
+}
+
+function renderDiceThemeBtn(btn) {
+  const set = btn.dataset.set || 'cosmic';
+  btn.innerHTML = getDiceThemePreview(set);
+  btn.setAttribute('aria-label', 'Dice style: ' + set.charAt(0).toUpperCase() + set.slice(1));
+}
+
+function closeDiceThemePicker() {
+  document.querySelectorAll('.dice-theme-picker').forEach(p => p.remove());
+  document.querySelectorAll('.dice-theme-btn.active').forEach(b => b.classList.remove('active'));
+}
+
+function showDiceThemePicker(btn) {
+  closeDiceThemePicker();
+  const picker = document.createElement('div');
+  picker.className = 'dice-theme-picker';
+  const currentSet = btn.dataset.set || 'cosmic';
+  [['cosmic','Cosmic'],['tracks','Tracks'],['arcade','Arcade']].forEach(([key, label]) => {
+    const opt = document.createElement('div');
+    opt.className = 'dice-theme-option' + (key === currentSet ? ' selected' : '');
+    opt.innerHTML = `<div class="dice-theme-opt-icon">${getDiceThemePreview(key)}</div><span class="dice-theme-option-label">${label}</span>`;
+    opt.addEventListener('click', e => {
+      e.stopPropagation();
+      btn.dataset.set = key;
+      renderDiceThemeBtn(btn);
+      closeDiceThemePicker();
+    });
+    picker.appendChild(opt);
+  });
+  btn.classList.add('active');
+  btn.closest('.dice-theme-wrap').appendChild(picker);
+  setTimeout(() => document.addEventListener('click', closeDiceThemePicker, { once: true }), 0);
+}
+
 // ============================================================
 // STATE
 // ============================================================
@@ -322,6 +359,11 @@ let G = null;
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
   refreshDiceFaces('cosmic');
+  document.querySelectorAll('.dice-theme-btn').forEach(renderDiceThemeBtn);
+  document.getElementById('player-fields').addEventListener('click', e => {
+    const btn = e.target.closest('.dice-theme-btn');
+    if (btn) { e.stopPropagation(); showDiceThemePicker(btn); }
+  });
   document.getElementById('start-game-btn').addEventListener('click', onStartGame);
   document.getElementById('add-player-btn').addEventListener('click', onAddPlayer);
   document.getElementById('roll-btn').addEventListener('click', onRoll);
@@ -406,13 +448,14 @@ function showSetupScreen() {
     <div class="player-field">
       <span class="player-num">1</span>
       <input type="text" class="player-name-input" placeholder="Player 1" maxlength="14" autocomplete="off">
-      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
+      <div class="dice-theme-wrap"><button type="button" class="dice-theme-btn" data-set="cosmic"></button></div>
     </div>
     <div class="player-field">
       <span class="player-num">2</span>
       <input type="text" class="player-name-input" placeholder="Player 2" maxlength="14" autocomplete="off">
-      <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
+      <div class="dice-theme-wrap"><button type="button" class="dice-theme-btn" data-set="cosmic"></button></div>
     </div>`;
+  document.querySelectorAll('.dice-theme-btn').forEach(renderDiceThemeBtn);
   document.getElementById('add-player-btn').disabled = false;
   loadOpts();
 }
@@ -426,8 +469,9 @@ function onAddPlayer() {
   div.innerHTML = `
     <span class="player-num">${count}</span>
     <input type="text" class="player-name-input" placeholder="Player ${count}" maxlength="14" autocomplete="off">
-    <select class="dice-set-select" aria-label="Dice style"><option value="cosmic">Cosmic</option><option value="tracks">Tracks</option><option value="arcade">Arcade</option></select>
+    <div class="dice-theme-wrap"><button type="button" class="dice-theme-btn" data-set="cosmic"></button></div>
     <button class="remove-player-btn" onclick="removePlayer(this)">✕</button>`;
+  renderDiceThemeBtn(div.querySelector('.dice-theme-btn'));
   fields.appendChild(div);
   if (count >= 6) document.getElementById('add-player-btn').disabled = true;
 }
@@ -443,7 +487,7 @@ function onStartGame() {
   const inputs = Array.from(document.querySelectorAll('.player-name-input'));
   const names = inputs.map((inp, i) => inp.value.trim() || `Player ${i + 1}`);
   if (names.length < 2) { alert('Need at least 2 players!'); return; }
-  const diceSets = Array.from(document.querySelectorAll('.dice-set-select')).map(sel => sel.value);
+  const diceSets = Array.from(document.querySelectorAll('.dice-theme-btn')).map(btn => btn.dataset.set || 'cosmic');
   const opts = {
     entryRequired:      document.getElementById('opt-entry').checked,
     clearFlashRequired: document.getElementById('opt-clear-flash').checked,
