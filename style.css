@@ -33,15 +33,25 @@ html, body {
   color: var(--text);
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ===== SCREENS ===== */
 .screen {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.screen-entering {
+  animation: screenFadeIn 0.22s ease both;
 }
 
 /* ===== SETUP SCREEN ===== */
@@ -398,6 +408,7 @@ html, body {
   background: var(--bg2);
   border-bottom: 1px solid var(--card-border);
   padding: 8px 12px 6px;
+  position: relative;
 }
 
 #score-list {
@@ -405,6 +416,28 @@ html, body {
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
+}
+
+#new-game-btn {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#new-game-btn:active {
+  background: var(--bg3);
+  color: var(--text);
 }
 
 .score-chip {
@@ -870,6 +903,7 @@ body::before {
 body > * { position: relative; z-index: 1; }
 
 /* ===== UTILITIES ===== */
+[hidden] { display: none !important; }
 .hidden { display: none !important; }
 
 /* ===== MEDIA ===== */
