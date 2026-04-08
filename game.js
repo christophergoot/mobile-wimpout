@@ -135,10 +135,31 @@ const ANIMAL_TRACK_SVGS = {
   // ── 5: reuse cosmic numeral (no animal track for this value) ──
   5: FACE_SVGS[5],
 
-  // ── 6: Black Bear — five toe pads + heel pad, pivot at (50,93) ──
-  // toeAngles=[-148,-114,-90,-66,-32], dist=32, r=8, cl=11
-  // Toe positions (cx,cy) and triangle claw M...L...L...Z computed from bearClaw()
+  // ── 6: Claw scratches — two sets of 3 parallel diagonal marks forming an X ──
+  // Set 1 (NW→SE, rotate 45°): centers at (61,54), (50,65), (39,76)
+  // Set 2 (NE→SW, rotate -45°): centers at (39,54), (50,65), (61,76)
+  // Spacing ≈ 15.6 units perpendicular; each scratch: 80×6, rx=3
   6: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <defs><filter id="f-claw" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="13" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.2"/>
+    </filter></defs>
+    <g filter="url(#f-claw)">
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(61,54) rotate(45)"/>
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(50,65) rotate(45)"/>
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(39,76) rotate(45)"/>
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(39,54) rotate(-45)"/>
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(50,65) rotate(-45)"/>
+      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(61,76) rotate(-45)"/>
+    </g>
+  </svg>`,
+
+  // ── 10: reuse cosmic numeral ──
+  10: FACE_SVGS[10],
+
+  // ── sun (wild): Black Bear paw — five toe pads + heel pad, pivot at (50,93) ──
+  // toeAngles=[-148,-114,-90,-66,-32], dist=32, r=8, cl=11
+  sun: `<svg viewBox="0 0 100 130" width="100%" height="100%">
     <defs><filter id="f-bear" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="11" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.4"/>
@@ -158,12 +179,6 @@ const ANIMAL_TRACK_SVGS = {
       <path fill="currentColor" d="M 85.1,73.8 L 93.3,66.0 L 82.7,69.8 Z"/>
     </g>
   </svg>`,
-
-  // ── 10: reuse cosmic numeral ──
-  10: FACE_SVGS[10],
-
-  // ── sun (wild): flaming sun — same as cosmic theme ──
-  sun: FACE_SVGS.sun,
 };
 
 // ============================================================
@@ -345,7 +360,7 @@ function refreshDiceFaces(setKey) {
 }
 
 function getDiceThemePreview(setKey) {
-  return (DICE_SETS[setKey] || FACE_SVGS)[6];
+  return (DICE_SETS[setKey] || FACE_SVGS)["sun"];
 }
 
 function renderDiceThemeBtn(btn) {
