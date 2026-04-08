@@ -33,15 +33,25 @@ html, body {
   color: var(--text);
   font-family: var(--font-body);
   -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 /* ===== SCREENS ===== */
 .screen {
-  min-height: 100vh;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.screen-entering {
+  animation: screenFadeIn 0.22s ease both;
 }
 
 /* ===== SETUP SCREEN ===== */
@@ -131,6 +141,7 @@ html, body {
 
 .player-name-input {
   flex: 1;
+  min-width: 0;
   background: var(--bg2);
   border: 1px solid var(--card-border);
   border-radius: 8px;
@@ -165,6 +176,78 @@ html, body {
 .remove-player-btn:hover {
   border-color: var(--red);
   color: var(--red);
+}
+
+.dice-theme-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dice-theme-btn {
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  color: var(--text);
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s;
+}
+
+.dice-theme-btn:focus,
+.dice-theme-btn.active {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.dice-theme-picker {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg2);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  z-index: 100;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.6);
+}
+
+.dice-theme-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.dice-theme-option:hover {
+  border-color: var(--card-border);
+}
+
+.dice-theme-option.selected {
+  border-color: var(--accent);
+}
+
+.dice-theme-opt-icon {
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+}
+
+.dice-theme-option-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  color: var(--text-dim);
 }
 
 /* ===== OPTIONS / TOGGLES ===== */
@@ -324,7 +407,15 @@ html, body {
   width: 100%;
   background: var(--bg2);
   border-bottom: 1px solid var(--card-border);
-  padding: 8px 12px 6px;
+  padding: 6px 12px 8px;
+}
+
+#score-controls {
+  display: flex;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 6px;
 }
 
 #score-list {
@@ -332,6 +423,24 @@ html, body {
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
+}
+
+#new-game-btn {
+  background: none;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  font-family: var(--font-head);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 4px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#new-game-btn:active {
+  background: var(--bg3);
+  color: var(--text);
 }
 
 .score-chip {
@@ -419,33 +528,77 @@ html, body {
 
 #dice-row {
   display: flex;
-  gap: clamp(8px, 2vw, 14px);
+  gap: clamp(10px, 2.5vw, 16px);
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
 }
 
+/* Outer wrapper — perspective is per-die so each cube is always viewed straight-on,
+   which keeps side faces edge-on (invisible) and prevents bleed into gaps. */
 .die {
   width: clamp(58px, 14vw, 74px);
   height: clamp(58px, 14vw, 74px);
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  perspective: 1400px;
+  transition: transform 0.2s ease, opacity 0.2s, cursor 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3D container — rotation to show correct face + tumble animation go here */
+.die-cube {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.die-cube.no-transition { transition: none !important; }
+
+/* All 6 cube faces */
+.face {
+  position: absolute;
+  inset: 0;
   border-radius: 14px;
   background: var(--white-die-bg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  /* Outer shadow removed — it caused visible bleed through the gap when a face
+     was edge-on to the camera. Only the inset highlight remains per face.
+     Overall die shadow lives on .die instead. */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   border: 3px solid transparent;
-  transition: all 0.2s;
-  position: relative;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.6);
-  user-select: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.die.black-die {
+.black-die .face {
   background: var(--black-die-bg);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6), 0 0 8px rgba(180,0,255,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
+/* Overall die shadow on the wrapper — never bleeds into neighbour gaps */
+.die { box-shadow: 0 4px 16px rgba(0,0,0,0.45); }
+.die.black-die { box-shadow: 0 4px 16px rgba(0,0,0,0.6), 0 0 8px rgba(180,0,255,0.2); }
+
+/* Face positions — translateZ = 33px (≈ half of mid-range die size 66px) */
+.face-front  { transform: translateZ(33px); }
+.face-back   { transform: rotateY(180deg) translateZ(33px); }
+.face-right  { transform: rotateY( 90deg) translateZ(33px); }
+.face-left   { transform: rotateY(-90deg) translateZ(33px); }
+.face-top    { transform: rotateX( 90deg) translateZ(33px); }
+.face-bottom { transform: rotateX(-90deg) translateZ(33px); }
+
+/* Depth shading only during tumble so side faces look 3D while spinning */
+.die.rolling .face-back, .die.rolling .face-right, .die.rolling .face-left  { filter: brightness(0.55); }
+.die.rolling .face-top,  .die.rolling .face-bottom                           { filter: brightness(0.75); }
+
+/* Die face content (value SVG/number) lives inside face-front */
 .die-face {
   width: 76%;
   height: 76%;
@@ -456,18 +609,16 @@ html, body {
   color: var(--white-die-text);
 }
 
-.die.black-die .die-face {
+.black-die .die-face {
   color: var(--black-die-text);
 }
 
-/* SVG fills the face container */
 .die-face svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* Number faces (5, 10) */
 .die-num {
   font-family: var(--font-head);
   font-size: clamp(17px, 4.5vw, 25px);
@@ -476,86 +627,101 @@ html, body {
   line-height: 1;
 }
 
-/* Die states */
-.die.unrolled {
+/* ── Die states ── */
+
+/* Unrolled: all faces dark, content hidden */
+.die.unrolled .face {
   background: #1a1030;
   border: 2px dashed #3a2060;
   box-shadow: none;
 }
+.die.unrolled .die-face { opacity: 0; }
 
-.die.unrolled .die-face {
-  opacity: 0;
-}
-
-.die.held {
+/* Held: gold glow on all faces + lift on .die */
+.die.held .face {
   border-color: var(--gold);
   box-shadow: 0 0 14px rgba(255,200,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
-  transform: translateY(-4px);
 }
+.die.held { transform: translateY(-4px); }
 
-.die.held.black-die {
-  box-shadow: 0 0 14px rgba(255,200,0,0.5), 0 4px 12px rgba(0,0,0,0.4);
-}
-
-.die.flash-die {
+/* Flash: cyan glow + lift */
+.die.flash-die .face {
   border-color: var(--cyan);
   box-shadow: 0 0 16px rgba(64,224,255,0.6), 0 4px 12px rgba(0,0,0,0.4);
-  transform: translateY(-4px);
 }
-
-.die.flash-die.black-die {
-  box-shadow: 0 0 16px rgba(64,224,255,0.6), 0 4px 12px rgba(0,0,0,0.4);
-}
+.die.flash-die { transform: translateY(-4px); }
 
 .die.non-scoring {
   opacity: 0.35;
   cursor: not-allowed;
-  transform: none !important;
 }
 
-.die.scorable:not(.held):not(.flash-die) {
+.die.scorable:not(.held):not(.flash-die) .face {
   border-color: var(--green);
   box-shadow: 0 0 10px rgba(64,255,144,0.4), 0 4px 12px rgba(0,0,0,0.3);
-  cursor: pointer;
 }
+.die.scorable:not(.held):not(.flash-die) { cursor: pointer; }
 
-/* Rolling animation */
-@keyframes rollSpin {
-  0%   { transform: rotate(0deg) scale(0.9); }
-  25%  { transform: rotate(180deg) scale(1.1); }
-  50%  { transform: rotate(270deg) scale(0.85); }
-  75%  { transform: rotate(360deg) scale(1.05); }
-  100% { transform: rotate(450deg) scale(1); }
-}
-
-@keyframes rollFace {
-  0%, 100% { opacity: 1; }
-  30%, 70% { opacity: 0; }
-}
-
-.die.rolling {
-  animation: rollSpin 0.55s ease-in-out;
-}
-
-.die.rolling .die-face {
-  animation: rollFace 0.55s ease-in-out;
-}
-
-/* Committed dice (from previous rolls this turn) */
-.die.committed {
+.die.committed .face {
   border-color: var(--gold2);
   opacity: 0.75;
-  transform: none;
-  cursor: not-allowed;
 }
-
-.die.committed .die-face::after {
+.die.committed .face::after {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: 11px;
   background: rgba(255,160,0,0.08);
+  pointer-events: none;
 }
+.die.committed { cursor: not-allowed; }
+
+/* ── Rolling animation: 3 tumble variants ──
+   All end at exact multiples of 360° (= identity) so the cube returns to
+   its base orientation, then the show-VALUE class snaps smoothly to the
+   correct face via the CSS transition on .die-cube.
+   translateY arc = physical "throw into the air" feel. */
+
+/* Variant A: heavy X tumble */
+@keyframes tumble-a {
+  0%   { transform: translateY(0px)   rotateX(0deg)    rotateY(0deg);    }
+  20%  { transform: translateY(-24px) rotateX(280deg)  rotateY(70deg);   }
+  50%  { transform: translateY(-12px) rotateX(580deg)  rotateY(190deg);  }
+  80%  { transform: translateY(-3px)  rotateX(880deg)  rotateY(320deg);  }
+  100% { transform: translateY(0px)   rotateX(1080deg) rotateY(360deg);  }
+}
+
+/* Variant B: heavy Y tumble */
+@keyframes tumble-b {
+  0%   { transform: translateY(0px)   rotateX(0deg)   rotateY(0deg);    }
+  20%  { transform: translateY(-26px) rotateX(80deg)  rotateY(220deg);  }
+  50%  { transform: translateY(-14px) rotateX(195deg) rotateY(500deg);  }
+  80%  { transform: translateY(-4px)  rotateX(305deg) rotateY(680deg);  }
+  100% { transform: translateY(0px)   rotateX(360deg) rotateY(720deg);  }
+}
+
+/* Variant C: diagonal tumble */
+@keyframes tumble-c {
+  0%   { transform: translateY(0px)   rotateX(0deg)   rotateY(0deg);    }
+  20%  { transform: translateY(-22px) rotateX(190deg) rotateY(160deg);  }
+  50%  { transform: translateY(-10px) rotateX(430deg) rotateY(390deg);  }
+  80%  { transform: translateY(-2px)  rotateX(660deg) rotateY(590deg);  }
+  100% { transform: translateY(0px)   rotateX(720deg) rotateY(720deg);  }
+}
+
+/* While rolling: kill transition so animation plays cleanly */
+.die.rolling .die-cube { transition: none; }
+
+/* ── show-VALUE classes ──
+   Face mapping: front=2, back=3, right=4, left=5, top=6, bottom=10/sun
+   Rotation = inverse of face's own transform, bringing it to face the viewer. */
+.die-cube.show-2   { transform: rotateX(0deg)   rotateY(0deg);   }
+.die-cube.show-3   { transform: rotateX(0deg)   rotateY(180deg); }
+.die-cube.show-4   { transform: rotateX(0deg)   rotateY(-90deg); }
+.die-cube.show-5   { transform: rotateX(0deg)   rotateY(90deg);  }
+.die-cube.show-6   { transform: rotateX(-90deg) rotateY(0deg);   }
+.die-cube.show-10  { transform: rotateX(90deg)  rotateY(0deg);   }
+.die-cube.show-sun { transform: rotateX(90deg)  rotateY(0deg);   }
 
 #dice-hint {
   font-size: 11px;
@@ -740,6 +906,7 @@ body::before {
 body > * { position: relative; z-index: 1; }
 
 /* ===== UTILITIES ===== */
+[hidden] { display: none !important; }
 .hidden { display: none !important; }
 
 /* ===== MEDIA ===== */
@@ -750,33 +917,34 @@ body > * { position: relative; z-index: 1; }
 @media (max-width: 360px) {
   .die { width: 54px; height: 54px; }
   #dice-row { gap: 6px; }
+  /* Recalculate face translateZ for 54px die: half = 27px */
+  .face-front  { transform: translateZ(27px); }
+  .face-back   { transform: rotateY(180deg) translateZ(27px); }
+  .face-right  { transform: rotateY( 90deg) translateZ(27px); }
+  .face-left   { transform: rotateY(-90deg) translateZ(27px); }
+  .face-top    { transform: rotateX( 90deg) translateZ(27px); }
+  .face-bottom { transform: rotateX(-90deg) translateZ(27px); }
 }
 
 /* ===== THEME BUTTON ===== */
 .theme-btn {
-  position: fixed;
-  top: 12px;
-  right: 12px;
-  z-index: 200;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--card);
+  margin-left: auto;
+  background: none;
   border: 1px solid var(--card-border);
+  border-radius: 6px;
   color: var(--text-dim);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  padding: 4px 7px;
+  transition: color 0.2s, border-color 0.2s;
   -webkit-tap-highlight-color: transparent;
 }
 
 .theme-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
-  box-shadow: 0 0 14px rgba(160,60,255,0.35);
 }
 
 /* ===== THEME MODAL ===== */

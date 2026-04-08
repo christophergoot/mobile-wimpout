@@ -23,6 +23,10 @@ describe('createGame – default state', () => {
     G.players.forEach(p => expect(p.eliminated).toBe(false));
   });
 
+  test('no players hold a suicide pact token at start', () => {
+    G.players.forEach(p => expect(p.suicidePactToken).toBe(false));
+  });
+
   test('initial phase is preroll', () => {
     expect(G.phase).toBe('preroll');
   });
@@ -93,6 +97,10 @@ describe('createGame – default rule options', () => {
   test('flashOptional defaults to false', () => {
     expect(G.opts.flashOptional).toBe(false);
   });
+
+  test('suicidePact defaults to false', () => {
+    expect(G.opts.suicidePact).toBe(false);
+  });
 });
 
 describe('createGame – custom rule options', () => {
@@ -114,6 +122,11 @@ describe('createGame – custom rule options', () => {
   test('can enable flashOptional', () => {
     const G = createGame(['A', 'B'], { flashOptional: true });
     expect(G.opts.flashOptional).toBe(true);
+  });
+
+  test('can enable suicidePact', () => {
+    const G = createGame(['A', 'B'], { suicidePact: true });
+    expect(G.opts.suicidePact).toBe(true);
   });
 
   test('partial opts leave unspecified flags at defaults', () => {
