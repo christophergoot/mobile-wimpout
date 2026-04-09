@@ -452,6 +452,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("start-game-btn")
     .addEventListener("click", onStartGame);
   document
+    .getElementById("target-score-slider")
+    .addEventListener("input", (e) => {
+      document.getElementById("target-score-display").textContent =
+        e.target.value;
+    });
+  document
     .getElementById("add-player-btn")
     .addEventListener("click", onAddPlayer);
   document.getElementById("roll-btn").addEventListener("click", onRoll);
@@ -608,6 +614,10 @@ function onStartGame() {
     allFiveRequired: document.getElementById("opt-all-five").checked,
     flashOptional: document.getElementById("opt-flash-optional").checked,
     suicidePact: document.getElementById("opt-suicide-pact").checked,
+    winningScore: parseInt(
+      document.getElementById("target-score-slider").value,
+      10,
+    ),
   };
   G = createGame(names, opts, diceSets);
   showScreen("game-screen");
@@ -701,6 +711,7 @@ function createGame(playerNames, opts = {}, diceSets = []) {
       flashOptional: !!opts.flashOptional,
       suicidePact: !!opts.suicidePact,
     },
+    winningScore: opts.winningScore || 500,
     currentPlayerIndex: 0,
 
     // Die object: value | isBlack | state
@@ -1431,7 +1442,7 @@ function bankAndFinish(instantWin) {
   renderScoreBoard();
   document.getElementById("turn-score-val").textContent = total;
 
-  const hitTarget = player.score >= WINNING_SCORE || instantWin;
+  const hitTarget = player.score >= G.winningScore || instantWin;
 
   if (hitTarget && !G.lastLicksActive) {
     G.lastLicksActive = true;
@@ -1628,6 +1639,8 @@ function renderDice() {
 }
 
 function renderScoreBoard() {
+  document.getElementById("game-target-label").textContent =
+    `To: ${G.winningScore}`;
   const list = document.getElementById("score-list");
   list.innerHTML = "";
   G.players.forEach((p, i) => {
