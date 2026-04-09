@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Die face background -->
+  <rect width="64" height="64" rx="10" fill="#000"/>
+  <!-- Flaming sun (wild die face) -->
+  <g fill="white" transform="translate(32,32)">
+    <!-- 8 main long pointed rays -->
+    <polygon transform="rotate(0)"   points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(45)"  points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(90)"  points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(135)" points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(180)" points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(225)" points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(270)" points="0,-30 -2.5,-9 2.5,-9"/>
+    <polygon transform="rotate(315)" points="0,-30 -2.5,-9 2.5,-9"/>
+    <!-- 8 shorter secondary rays -->
+    <polygon transform="rotate(22.5)"  points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(67.5)"  points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(112.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(157.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(202.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(247.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(292.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <polygon transform="rotate(337.5)" points="0,-19 -1.5,-9 1.5,-9"/>
+    <!-- Central circle -->
+    <circle r="10" fill="white"/>
+  </g>
+</svg>
