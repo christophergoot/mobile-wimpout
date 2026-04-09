@@ -560,9 +560,9 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 function saveOpts() {
   const opts = {
-    entryRequired: document.getElementById("opt-entry").checked,
-    clearFlashRequired: document.getElementById("opt-clear-flash").checked,
-    allFiveRequired: document.getElementById("opt-all-five").checked,
+    entryRequired: !document.getElementById("opt-entry").checked,
+    clearFlashRequired: !document.getElementById("opt-clear-flash").checked,
+    allFiveRequired: !document.getElementById("opt-all-five").checked,
     flashOptional: document.getElementById("opt-flash-optional").checked,
     suicidePact: document.getElementById("opt-suicide-pact").checked,
   };
@@ -574,11 +574,11 @@ function loadOpts() {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (saved) {
       document.getElementById("opt-entry").checked =
-        saved.entryRequired !== false;
+        saved.entryRequired === false;
       document.getElementById("opt-clear-flash").checked =
-        saved.clearFlashRequired !== false;
+        saved.clearFlashRequired === false;
       document.getElementById("opt-all-five").checked =
-        saved.allFiveRequired !== false;
+        saved.allFiveRequired === false;
       document.getElementById("opt-flash-optional").checked =
         !!saved.flashOptional;
       document.getElementById("opt-suicide-pact").checked = !!saved.suicidePact;
@@ -644,9 +644,9 @@ function onStartGame() {
     (btn) => btn.dataset.set || "cosmic",
   );
   const opts = {
-    entryRequired: document.getElementById("opt-entry").checked,
-    clearFlashRequired: document.getElementById("opt-clear-flash").checked,
-    allFiveRequired: document.getElementById("opt-all-five").checked,
+    entryRequired: !document.getElementById("opt-entry").checked,
+    clearFlashRequired: !document.getElementById("opt-clear-flash").checked,
+    allFiveRequired: !document.getElementById("opt-all-five").checked,
     flashOptional: document.getElementById("opt-flash-optional").checked,
     suicidePact: document.getElementById("opt-suicide-pact").checked,
     winningScore: parseInt(

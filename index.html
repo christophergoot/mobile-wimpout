@@ -59,28 +59,28 @@
         </div>
         <button id="add-player-btn" class="btn btn-ghost">+ Add Player</button>
 
-        <h2 class="section-label" style="margin-top:10px">RULES</h2>
+        <h2 class="section-label" style="margin-top:10px">HOUSE RULES</h2>
         <div class="option-list">
           <label class="option-row">
             <span class="option-label">
-              <span class="option-title">Entry Requirement</span>
-              <span class="option-desc">Must score 35+ pts to get on the board</span>
+              <span class="option-title">Open Entry</span>
+              <span class="option-desc">No entry barrier — bank any score on your first turn</span>
             </span>
-            <input type="checkbox" id="opt-entry" class="toggle" checked>
+            <input type="checkbox" id="opt-entry" class="toggle">
           </label>
           <label class="option-row">
             <span class="option-label">
-              <span class="option-title">Clear Flashes</span>
-              <span class="option-desc">Must roll remaining dice after a flash</span>
+              <span class="option-title">Flash Banking</span>
+              <span class="option-desc">Bank immediately after a flash without rolling remaining dice</span>
             </span>
-            <input type="checkbox" id="opt-clear-flash" class="toggle" checked>
+            <input type="checkbox" id="opt-clear-flash" class="toggle">
           </label>
           <label class="option-row">
             <span class="option-label">
-              <span class="option-title">All Five Scored</span>
-              <span class="option-desc">Must roll all 5 again when all dice score</span>
+              <span class="option-title">Hot Dice Banking</span>
+              <span class="option-desc">Bank when all 5 dice score without rolling again</span>
             </span>
-            <input type="checkbox" id="opt-all-five" class="toggle" checked>
+            <input type="checkbox" id="opt-all-five" class="toggle">
           </label>
           <label class="option-row">
             <span class="option-label">
@@ -192,18 +192,19 @@
         </section>
 
         <section class="help-section">
-          <h3 class="help-heading">OPTIONAL RULES</h3>
+          <h3 class="help-heading">HOUSE RULES</h3>
+          <p class="help-intro">The base game enforces an entry requirement, flash clearing, and hot dice rolling. House rules let you relax any of these constraints.</p>
           <div class="help-option">
-            <div class="help-option-title">Entry Requirement <span class="help-default">on by default</span></div>
-            <div class="help-option-desc">A player must score <strong>35 or more points</strong> in a single turn to get on the scoreboard. Until then, all banked points are ignored.</div>
+            <div class="help-option-title">Open Entry <span class="help-default">off by default</span></div>
+            <div class="help-option-desc">Removes the entry requirement. Normally a player must score <strong>35 or more points</strong> in a single turn to get on the scoreboard — with this rule, anyone can bank any positive score from turn one.</div>
           </div>
           <div class="help-option">
-            <div class="help-option-title">Clear Flashes <span class="help-default">on by default</span></div>
-            <div class="help-option-desc">After rolling a Flash, you <strong>must roll the remaining dice</strong> at least once before you can bank. This forces you to risk more dice on the Flash roll.</div>
+            <div class="help-option-title">Flash Banking <span class="help-default">off by default</span></div>
+            <div class="help-option-desc">Removes the flash-clearing obligation. Normally after rolling a Flash you <strong>must roll the remaining dice</strong> at least once — with this rule, you can bank immediately after a Flash.</div>
           </div>
           <div class="help-option">
-            <div class="help-option-title">All Five Scored <span class="help-default">on by default</span></div>
-            <div class="help-option-desc">If all 5 dice score in a single roll, you <strong>must roll all 5 again</strong> before banking. Keeps the tension going when every die is a scorer.</div>
+            <div class="help-option-title">Hot Dice Banking <span class="help-default">off by default</span></div>
+            <div class="help-option-desc">Removes the hot-dice re-roll. Normally if all 5 dice score in a single roll you <strong>must roll all 5 again</strong> — with this rule, you can bank right away.</div>
           </div>
           <div class="help-option">
             <div class="help-option-title">Flashes Optional <span class="help-default">off by default</span></div>
