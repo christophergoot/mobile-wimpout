@@ -1067,6 +1067,7 @@ function onRoll() {
       const variant =
         TUMBLE_VARIANTS[Math.floor(Math.random() * TUMBLE_VARIANTS.length)];
       const duration = TUMBLE_MS + Math.floor(Math.random() * 80);
+      cube.style.willChange = "transform";
       cube.style.animationName = variant;
       cube.style.animationDuration = `${duration}ms`;
       cube.style.animationDelay = `${li * STAGGER_MS}ms`;
@@ -1090,6 +1091,7 @@ function onRoll() {
           cube.style.animationDelay = "";
           cube.style.animationTimingFunction = "";
           cube.style.animationFillMode = "";
+          cube.style.willChange = "";
           // Add show class — the CSS transition on .die-cube smoothly rotates to the correct face
           cube.classList.add(`show-${prerolledValues[li]}`);
         }

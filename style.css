@@ -611,7 +611,6 @@ html, body {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  will-change: transform;
   transition: transform 0.22s cubic-bezier(0.23, 1, 0.32, 1);
 }
 .die-cube.no-transition { transition: none !important; }
