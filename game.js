@@ -67,13 +67,27 @@ const FACE_SVGS = {
     <polygon fill="currentColor" points="8,25 8.7,27.1 10.9,27.1 9.1,28.4 9.8,30.4 8,29.2 6.2,30.4 6.9,28.4 5.1,27.1 7.3,27.1"/>
   </svg>`,
 
-  // ── Flaming Sun (wild): 8-pointed starburst ──
+  // ── Flaming Sun (wild): 16-ray starburst (8 long + 8 short) ──
   sun: `<svg viewBox="0 0 40 40" width="100%" height="100%">
-    <polygon fill="currentColor" points="
-      20,2   23.4,11.7  32.7,7.3  28.3,16.6
-      38,20  28.3,23.4  32.7,32.7 23.4,28.3
-      20,38  16.6,28.3  7.3,32.7  11.7,23.4
-      2,20   11.7,16.6  7.3,7.3   16.6,11.7"/>
+    <g fill="currentColor" transform="translate(20,20)">
+      <polygon transform="rotate(0)"   points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(45)"  points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(90)"  points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(135)" points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(180)" points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(225)" points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(270)" points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(315)" points="0,-18 -1.5,-5 1.5,-5"/>
+      <polygon transform="rotate(22.5)"  points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(67.5)"  points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(112.5)" points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(157.5)" points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(202.5)" points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(247.5)" points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(292.5)" points="0,-12 -1,-5 1,-5"/>
+      <polygon transform="rotate(337.5)" points="0,-12 -1,-5 1,-5"/>
+      <circle r="6"/>
+    </g>
   </svg>`,
 };
 
@@ -84,99 +98,120 @@ const FACE_SVGS = {
 //   L -2,-h L 0,-(h+cl) L 2,-h L 2.2,-(h-2) C w*0.82,-h*0.55 w,-h*0.18 0,0 Z
 // Applied via transform="translate(px,py) rotate(angleDeg)"
 const ANIMAL_TRACK_SVGS = {
-  // ── 2: White-tailed Deer — two cloven hoof halves ──
+  // ── 2: Two Deer Hoofprints — diagonal walking stride ──
   2: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-deer" x="-6%" y="-6%" width="112%" height="112%">
+    <defs><filter id="f-deer2" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="5" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.3"/>
     </filter></defs>
-    <g filter="url(#f-deer)">
-      <path fill="currentColor" d="M 46,13 C 22,15 9,42 9,69 C 9,93 23,114 46,116 C 45,97 44,78 44,58 C 44,38 45,25 46,13 Z"/>
-      <path fill="currentColor" d="M 54,13 C 78,15 91,42 91,69 C 91,93 77,114 54,116 C 55,97 56,78 56,58 C 56,38 55,25 54,13 Z"/>
+    <g filter="url(#f-deer2)" fill="currentColor">
+      <g transform="translate(62,38) rotate(15)">
+        <ellipse cx="-8" cy="0" rx="6" ry="16"/>
+        <ellipse cx="8" cy="0" rx="6" ry="16"/>
+      </g>
+      <g transform="translate(38,92) rotate(-15)">
+        <ellipse cx="-8" cy="0" rx="6" ry="16"/>
+        <ellipse cx="8" cy="0" rx="6" ry="16"/>
+      </g>
     </g>
   </svg>`,
 
-  // ── 3: Emu — three forward toes, pivot at (50,110) ──
-  // toePath(9,40,13): h1=7.2 h2=22  toePath(11,48,15): h1=8.64 h2=26.4
+  // ── 3: Turkey — three wide forward toes, pivot at (50,110) ──
+  // toePath(12,50,14) center: C -12,-9 -9.84,-27.5 ... toePath(10,42,12) sides
   3: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-emu" x="-6%" y="-6%" width="112%" height="112%">
+    <defs><filter id="f-turkey" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="3" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.1"/>
     </filter></defs>
-    <g filter="url(#f-emu)">
-      <path fill="currentColor" transform="translate(50,110) rotate(-36)"
-        d="M 0,0 C -9,-7.2 -7.38,-22 -2.2,-38 L -2,-40 L 0,-53 L 2,-40 L 2.2,-38 C 7.38,-22 9,-7.2 0,0 Z"/>
+    <g filter="url(#f-turkey)">
+      <path fill="currentColor" transform="translate(50,110) rotate(-40)"
+        d="M 0,0 C -10,-7.56 -8.2,-23.1 -2.2,-40 L -2,-42 L 0,-54 L 2,-42 L 2.2,-40 C 8.2,-23.1 10,-7.56 0,0 Z"/>
       <path fill="currentColor" transform="translate(50,110) rotate(0)"
-        d="M 0,0 C -11,-8.64 -9.02,-26.4 -2.2,-46 L -2,-48 L 0,-63 L 2,-48 L 2.2,-46 C 9.02,-26.4 11,-8.64 0,0 Z"/>
-      <path fill="currentColor" transform="translate(50,110) rotate(36)"
-        d="M 0,0 C -9,-7.2 -7.38,-22 -2.2,-38 L -2,-40 L 0,-53 L 2,-40 L 2.2,-38 C 7.38,-22 9,-7.2 0,0 Z"/>
+        d="M 0,0 C -12,-9 -9.84,-27.5 -2.2,-48 L -2,-50 L 0,-64 L 2,-50 L 2.2,-48 C 9.84,-27.5 12,-9 0,0 Z"/>
+      <path fill="currentColor" transform="translate(50,110) rotate(40)"
+        d="M 0,0 C -10,-7.56 -8.2,-23.1 -2.2,-40 L -2,-42 L 0,-54 L 2,-42 L 2.2,-40 C 8.2,-23.1 10,-7.56 0,0 Z"/>
     </g>
   </svg>`,
 
-  // ── 4: American Crow — three forward toes + rear hallux, pivot at (50,85) ──
-  // toePath(3,22,8): h1=3.96 h2=12.1  toePath(4,30,9): h1=5.4 h2=16.5  toePath(4,38,11): h1=6.84 h2=20.9
-  4: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-crow" x="-6%" y="-6%" width="112%" height="112%">
+  // ── 4: Dog/Wolf paw — single large print, 4 toes matching face-6 style ──
+  4: `<svg viewBox="0 0 120 120" width="100%" height="100%">
+    <defs><filter id="f-dog" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="7" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="0.9"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.0"/>
     </filter></defs>
-    <g filter="url(#f-crow)">
-      <path fill="currentColor" transform="translate(50,85) rotate(180)"
-        d="M 0,0 C -3,-3.96 -2.46,-12.1 -2.2,-20 L -2,-22 L 0,-30 L 2,-22 L 2.2,-20 C 2.46,-12.1 3,-3.96 0,0 Z"/>
-      <path fill="currentColor" transform="translate(50,85) rotate(-46)"
-        d="M 0,0 C -4,-5.4 -3.28,-16.5 -2.2,-28 L -2,-30 L 0,-39 L 2,-30 L 2.2,-28 C 3.28,-16.5 4,-5.4 0,0 Z"/>
-      <path fill="currentColor" transform="translate(50,85) rotate(0)"
-        d="M 0,0 C -4,-6.84 -3.28,-20.9 -2.2,-36 L -2,-38 L 0,-49 L 2,-38 L 2.2,-36 C 3.28,-20.9 4,-6.84 0,0 Z"/>
-      <path fill="currentColor" transform="translate(50,85) rotate(46)"
-        d="M 0,0 C -4,-5.4 -3.28,-16.5 -2.2,-28 L -2,-30 L 0,-39 L 2,-30 L 2.2,-28 C 3.28,-16.5 4,-5.4 0,0 Z"/>
+    <g fill="currentColor" stroke="currentColor" stroke-width="0.8" stroke-linejoin="round" filter="url(#f-dog)">
+      <g transform="translate(60,62) scale(2.5)">
+        <path d="M -17 8 Q -8.5 5 0 8 Q 8.5 5 17 8 Q 8.5 17 0 19 Q -8.5 17 -17 8 Z"/>
+        <ellipse cx="-15" cy="-4" rx="3.2" ry="5.5"/>
+        <ellipse cx="-5" cy="-9" rx="3.4" ry="6.5"/>
+        <ellipse cx="5" cy="-9" rx="3.4" ry="6.5"/>
+        <ellipse cx="15" cy="-4" rx="3.2" ry="5.5"/>
+      </g>
     </g>
   </svg>`,
 
-  // ── 5: reuse cosmic numeral (no animal track for this value) ──
-  5: FACE_SVGS[5],
+  // ── 5: Numeral with raccoon paw decoration (bottom-left) ──
+  5: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <text x="52" y="90" font-family="Orbitron,sans-serif" font-size="75" font-weight="900"
+          text-anchor="middle" fill="currentColor">5</text>
+    <circle cx="18" cy="111" r="6" fill="currentColor"/>
+    <circle cx="30" cy="105" r="6" fill="currentColor"/>
+    <circle cx="42" cy="109" r="6" fill="currentColor"/>
+    <ellipse cx="30" cy="121" rx="14" ry="8" fill="currentColor"/>
+  </svg>`,
 
-  // ── 6: Claw scratches — two sets of 3 parallel diagonal marks forming an X ──
-  // Set 1 (NW→SE, rotate 45°): centers at (61,54), (50,65), (39,76)
-  // Set 2 (NE→SW, rotate -45°): centers at (39,54), (50,65), (61,76)
-  // Spacing ≈ 15.6 units perpendicular; each scratch: 80×6, rx=3
-  6: `<svg viewBox="0 0 100 130" width="100%" height="100%">
-    <defs><filter id="f-claw" x="-6%" y="-6%" width="112%" height="112%">
+  // ── 6: Two 3-toed paw prints (diagonal pair) ──
+  6: `<svg viewBox="0 0 120 120" width="100%" height="100%">
+    <defs><filter id="f-claws" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="13" result="noise"/>
       <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.2"/>
     </filter></defs>
-    <g filter="url(#f-claw)">
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(61,54) rotate(45)"/>
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(50,65) rotate(45)"/>
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(39,76) rotate(45)"/>
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(39,54) rotate(-45)"/>
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(50,65) rotate(-45)"/>
-      <rect x="-40" y="-3" width="80" height="6" rx="3" fill="currentColor" transform="translate(61,76) rotate(-45)"/>
+    <g fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" filter="url(#f-claws)">
+      <g transform="translate(38,78) rotate(-15) scale(1.6)">
+        <path d="M -12 8 Q -6 6 0 8 Q 6 6 12 8 Q 6 15 0 17 Q -6 15 -12 8 Z"/>
+        <ellipse cx="-11" cy="-3" rx="3.2" ry="6"/>
+        <ellipse cx="0" cy="-8" rx="3.4" ry="6.5"/>
+        <ellipse cx="11" cy="-3" rx="3.2" ry="6"/>
+      </g>
+      <g transform="translate(82,42) rotate(15) scale(1.6)">
+        <path d="M -12 8 Q -6 6 0 8 Q 6 6 12 8 Q 6 15 0 17 Q -6 15 -12 8 Z"/>
+        <ellipse cx="-11" cy="-3" rx="3.2" ry="6"/>
+        <ellipse cx="0" cy="-8" rx="3.4" ry="6.5"/>
+        <ellipse cx="11" cy="-3" rx="3.2" ry="6"/>
+      </g>
     </g>
   </svg>`,
 
-  // ── 10: reuse cosmic numeral ──
-  10: FACE_SVGS[10],
+  // ── 10: Numeral with small cloven hoofprint decoration (bottom-left) ──
+  10: `<svg viewBox="0 0 100 130" width="100%" height="100%">
+    <text x="52" y="85" font-family="Orbitron,sans-serif" font-size="62" font-weight="900"
+          text-anchor="middle" fill="currentColor">10</text>
+    <g transform="translate(22,112) rotate(-5)" fill="currentColor">
+      <ellipse cx="-7" cy="0" rx="5.5" ry="13"/>
+      <ellipse cx="7" cy="0" rx="5.5" ry="13"/>
+    </g>
+  </svg>`,
 
-  // ── sun (wild): Black Bear paw — five toe pads + heel pad, pivot at (50,93) ──
-  // toeAngles=[-148,-114,-90,-66,-32], dist=32, r=8, cl=11
+  // ── sun (wild): Black Bear paw — enlarged, recentered ──
+  // palmCenter=(50,83), toeR=10, clawH=12, scale≈1.2x vs original
   sun: `<svg viewBox="0 0 100 130" width="100%" height="100%">
     <defs><filter id="f-bear" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.13" numOctaves="4" seed="11" result="noise"/>
-      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.4"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="1.6"/>
     </filter></defs>
-    <g filter="url(#f-bear)">
-      <ellipse cx="43" cy="93" rx="18" ry="16" fill="currentColor"/>
-      <ellipse cx="57" cy="93" rx="18" ry="16" fill="currentColor"/>
-      <circle cx="22.9" cy="76.0" r="8" fill="currentColor"/>
-      <path fill="currentColor" d="M 17.3,69.8 L 6.8,66.0 L 14.9,73.8 Z"/>
-      <circle cx="37.0" cy="63.8" r="8" fill="currentColor"/>
-      <path fill="currentColor" d="M 35.8,55.5 L 29.3,46.4 L 31.6,57.4 Z"/>
-      <circle cx="50" cy="61" r="8" fill="currentColor"/>
-      <path fill="currentColor" d="M 52.3,53 L 50,42 L 47.7,53 Z"/>
-      <circle cx="63.0" cy="63.8" r="8" fill="currentColor"/>
-      <path fill="currentColor" d="M 68.4,57.4 L 70.7,46.4 L 64.2,55.5 Z"/>
-      <circle cx="77.1" cy="76.0" r="8" fill="currentColor"/>
-      <path fill="currentColor" d="M 85.1,73.8 L 93.3,66.0 L 82.7,69.8 Z"/>
+    <g filter="url(#f-bear)" fill="currentColor">
+      <ellipse cx="41" cy="83" rx="20" ry="18"/>
+      <ellipse cx="59" cy="83" rx="20" ry="18"/>
+      <circle cx="22" cy="63" r="10"/>
+      <path transform="translate(11.4,55.5) rotate(-55)" d="M 0,-12 L -4,0 L 4,0 Z"/>
+      <circle cx="34.4" cy="48" r="10"/>
+      <path transform="translate(29.1,36.1) rotate(-24)" d="M 0,-12 L -4,0 L 4,0 Z"/>
+      <circle cx="50" cy="44.6" r="10"/>
+      <path transform="translate(50,31.6) rotate(0)" d="M 0,-12 L -4,0 L 4,0 Z"/>
+      <circle cx="65.6" cy="48" r="10"/>
+      <path transform="translate(70.9,36.1) rotate(24)" d="M 0,-12 L -4,0 L 4,0 Z"/>
+      <circle cx="78" cy="63" r="10"/>
+      <path transform="translate(88.6,55.5) rotate(55)" d="M 0,-12 L -4,0 L 4,0 Z"/>
     </g>
   </svg>`,
 };
@@ -452,6 +487,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("start-game-btn")
     .addEventListener("click", onStartGame);
   document
+    .getElementById("target-score-slider")
+    .addEventListener("input", (e) => {
+      document.getElementById("target-score-display").textContent =
+        e.target.value;
+    });
+  document
     .getElementById("add-player-btn")
     .addEventListener("click", onAddPlayer);
   document.getElementById("roll-btn").addEventListener("click", onRoll);
@@ -608,6 +649,10 @@ function onStartGame() {
     allFiveRequired: document.getElementById("opt-all-five").checked,
     flashOptional: document.getElementById("opt-flash-optional").checked,
     suicidePact: document.getElementById("opt-suicide-pact").checked,
+    winningScore: parseInt(
+      document.getElementById("target-score-slider").value,
+      10,
+    ),
   };
   G = createGame(names, opts, diceSets);
   showScreen("game-screen");
@@ -701,6 +746,7 @@ function createGame(playerNames, opts = {}, diceSets = []) {
       flashOptional: !!opts.flashOptional,
       suicidePact: !!opts.suicidePact,
     },
+    winningScore: opts.winningScore || 500,
     currentPlayerIndex: 0,
 
     // Die object: value | isBlack | state
@@ -1431,7 +1477,7 @@ function bankAndFinish(instantWin) {
   renderScoreBoard();
   document.getElementById("turn-score-val").textContent = total;
 
-  const hitTarget = player.score >= WINNING_SCORE || instantWin;
+  const hitTarget = player.score >= G.winningScore || instantWin;
 
   if (hitTarget && !G.lastLicksActive) {
     G.lastLicksActive = true;
@@ -1628,6 +1674,8 @@ function renderDice() {
 }
 
 function renderScoreBoard() {
+  document.getElementById("game-target-label").textContent =
+    `To: ${G.winningScore}`;
   const list = document.getElementById("score-list");
   list.innerHTML = "";
   G.players.forEach((p, i) => {

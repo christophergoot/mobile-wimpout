@@ -6,6 +6,7 @@
   <title>Cosmic Wimpout</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -97,6 +98,14 @@
           </label>
         </div>
 
+        <h2 class="section-label" style="margin-top:10px">GAME TARGET</h2>
+        <div class="target-score-row">
+          <span class="option-title">Points to win</span>
+          <span id="target-score-display" class="target-score-display">500</span>
+        </div>
+        <input type="range" id="target-score-slider" class="target-score-slider"
+          min="50" max="1500" step="50" value="500">
+
         <button id="start-game-btn" class="btn btn-primary btn-wide">LAUNCH GAME</button>
         <button id="help-btn" class="btn btn-ghost btn-wide">HOW TO PLAY</button>
       </div>
@@ -114,7 +123,7 @@
 
         <section class="help-section">
           <h3 class="help-heading">GOAL</h3>
-          <p class="help-text">Be the first player to reach <strong>500 points</strong>. When someone hits 500, every other player gets one final <em>Last Licks</em> turn — highest score wins.</p>
+          <p class="help-text">Be the first player to reach <strong>the target score</strong>. When someone hits the target, every other player gets one final <em>Last Licks</em> turn — highest score wins.</p>
         </section>
 
         <section class="help-section">
@@ -213,6 +222,7 @@
     <div id="score-board">
       <div id="score-controls">
         <button id="new-game-btn" aria-label="Abandon game and return to setup">NEW GAME</button>
+        <span id="game-target-label" class="game-target-label">To: 500</span>
         <button id="theme-btn" class="theme-btn" aria-label="Theme settings" title="Theme">
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/>
