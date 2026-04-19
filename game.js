@@ -844,16 +844,19 @@ function evaluateDice(dice, clearingValue) {
   let flashValue = null;
   let flashIndices = []; // local indices into `dice`
 
-  // Direct flash: exactly 3 of the same value.
-  // (5-of-a-kind is caught by the freight-train check above before we get here.)
+  // Direct flash: 3 or more of the same value (5-of-a-kind caught by freight check above).
+  // 4-of-a-kind still flashes on the first 3 matching dice; the extra die is non-scoring.
+  // clearingValue only suppresses a new flash when fewer than 3 of that value are present;
+  // rolling 3+ of the clearing value constitutes a genuine new flash (and proves the old one).
   for (const [vStr, cnt] of Object.entries(counts)) {
     const v = Number(vStr);
-    if (v === clearingValue) continue;
-    if (cnt === 3) {
+    if (v === clearingValue && cnt < 3) continue;
+    if (cnt >= 3) {
       flashValue = v;
       flashIndices = numericVals
         .map((nv, i) => (nv === v ? i : null))
-        .filter((i) => i !== null);
+        .filter((i) => i !== null)
+        .slice(0, 3);
       break;
     }
   }

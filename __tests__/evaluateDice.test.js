@@ -76,7 +76,7 @@ describe('evaluateDice – sampler', () => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FLASH  (exactly 3 of same numeric value — 4-of-a-kind is NOT a flash)
+// FLASH  (3 or more of same numeric value — 4-of-a-kind IS a flash using 3 dice)
 // ─────────────────────────────────────────────────────────────────────────────
 describe('evaluateDice – flash detection', () => {
   test('three of the same value → flash', () => {
@@ -86,24 +86,36 @@ describe('evaluateDice – flash detection', () => {
     expect(r.flashIndices).toHaveLength(3);
   });
 
-  test('four of the same value → NOT a flash (4-of-a-kind does not score)', () => {
+  // Bug fix: four of the same value IS a flash (uses first 3 dice)
+  test('four of the same value → flash using 3 dice', () => {
     const r = evaluateDice([d(6), d(6), d(6), d(6)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.flashIndices).toHaveLength(0);
+    expect(r.flashValue).toBe(6);
+    expect(r.flashIndices).toHaveLength(3);
+    expect(r.type).toBe('normal');
   });
 
-  test('four of a kind produces wimpout when no other scoring dice', () => {
+  // Bug regression: four 6s + one 10 → flash of sixes (reported: flash not recognized)
+  test('four sixes + lone ten → flash of sixes, ten scores individually', () => {
+    const r = evaluateDice([d(6), d(6), d(10), d(6), d(6)], null);
+    expect(r.flashValue).toBe(6);
+    expect(r.flashIndices).toHaveLength(3);
+    expect(r.canScore[2]).toBe(true); // the 10 still scores individually
+  });
+
+  test('four of a kind → flash (not wimpout), 4th die does not score', () => {
     const r = evaluateDice([d(4), d(4), d(4), d(4)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.type).toBe('wimpout');
-    expect(r.canScore.every(v => !v)).toBe(true);
+    expect(r.flashValue).toBe(4);
+    expect(r.flashIndices).toHaveLength(3);
+    expect(r.type).toBe('normal');
+    // The 4th die (index 3) is outside the flash and 4 is not an individual scorer
+    expect(r.canScore[3]).toBe(false);
   });
 
-  test('four of a kind + lone 5 → no flash, but the 5 still scores individually', () => {
+  test('four of a kind + lone 5 → flash detected, 5 also scores individually', () => {
     const r = evaluateDice([d(3), d(3), d(3), d(3), d(5)], null);
-    expect(r.flashValue).toBeNull();
-    expect(r.canScore[4]).toBe(true);   // the 5 scores
-    expect(r.canScore.slice(0, 4).every(v => !v)).toBe(true); // four 3s do not
+    expect(r.flashValue).toBe(3);
+    expect(r.flashIndices).toHaveLength(3);
+    expect(r.canScore[4]).toBe(true);  // the 5 scores
     expect(r.type).toBe('normal');
   });
 
@@ -119,9 +131,17 @@ describe('evaluateDice – flash detection', () => {
     r.flashIndices.forEach(i => expect(r.canScore[i]).toBe(true));
   });
 
-  test('clearingValue blocks a flash of that value', () => {
-    // three 4s, but 4 is the clearing value → no flash
+  // Bug fix: clearingValue only suppresses a flash when fewer than 3 dice show that value.
+  // Rolling 3+ of the clearing value constitutes a genuine new flash.
+  test('clearingValue does NOT block a flash when 3 or more of that value are rolled', () => {
     const r = evaluateDice([d(4), d(4), d(4), d(2)], 4);
+    expect(r.flashValue).toBe(4);
+    expect(r.flashIndices).toHaveLength(3);
+  });
+
+  test('clearingValue blocks a flash when fewer than 3 of that value are rolled', () => {
+    // two 4s while clearing flash of 4s → not enough for a new flash
+    const r = evaluateDice([d(4), d(4), d(2)], 4);
     expect(r.flashValue).toBeNull();
   });
 
@@ -132,17 +152,25 @@ describe('evaluateDice – flash detection', () => {
   });
 
   test('clearingValue does NOT block individual scoring of that face', () => {
-    // A 5 rolled while clearing a flash of 5s should still score individually
-    // (the clearing value only prevents a new flash of 5s, not individual 5s)
+    // A lone 5 rolled while clearing a flash of 5s still scores individually
     const r = evaluateDice([d(5), d(2), d(3)], 5);
     const fiveIdx = 0;
     expect(r.canScore[fiveIdx]).toBe(true);
-    expect(r.type).toBe('normal'); // not a wimpout — the 5 proves the flash
+    expect(r.type).toBe('normal');
+  });
+
+  // Bug regression: rolling 5,5,5,4,3 while clearing a flash of 5s should be a flash,
+  // not just three individual 5s (15 pts). (reported: only scored 15 points)
+  test('three of clearing value in full roll → new flash of that value', () => {
+    const r = evaluateDice([d(5), d(5), d(5), d(4), d(3)], 5);
+    expect(r.flashValue).toBe(5);
+    expect(r.flashIndices).toHaveLength(3);
+    expect(r.type).toBe('normal');
   });
 
   test('flash-proving: rerolling after flash of 5s, one die shows 5 → proves flash, can bank 55', () => {
     // Scenario: player had flash of 5s (3 dice committed = 50 pts), rerolls 2 dice.
-    // One of the 2 rerolled dice is a 5. clearingValue=5 blocks a new flash of 5s
+    // One of the 2 rerolled dice is a 5. clearingValue=5, only 1 five → no new flash,
     // but the individual 5 should score (+5 pts), allowing bank of 50+5=55 pts.
     const r = evaluateDice([d(5), d(3)], 5);
     expect(r.flashValue).toBeNull();    // no new flash of 5s
@@ -241,9 +269,11 @@ describe('evaluateDice – wimpout', () => {
     expect(r.type).toBe('wimpout');
   });
 
-  test('three of a kind blocked by clearingValue → wimpout if no other scorers', () => {
+  // Bug fix: three of the clearing value → new flash (not wimpout)
+  test('three of clearing value → flash (not wimpout)', () => {
     const r = evaluateDice([d(4), d(4), d(4)], 4);
-    expect(r.type).toBe('wimpout');
+    expect(r.flashValue).toBe(4);
+    expect(r.type).toBe('normal');
   });
 });
 
