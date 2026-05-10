@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Character Sheet</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Caveat:wght@400;600;700&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a0f00;
+      --ink-light: #3a2a10;
+      --ink-faint: rgba(26,15,0,0.18);
+      --parchment: #e8d8b0;
+      --parchment-dark: #d4be8a;
+      --parchment-shadow: #b8a070;
+      --red-ink: #8b1a1a;
+      --gold-ink: #7a5a10;
+      --font-title: 'Uncial Antiqua', serif;
+      --font-body: 'IM Fell English', serif;
+      --font-hand: 'Caveat', cursive;
+    }
+
+    html, body {
+      min-height: 100%;
+      background: #2a1a0a;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 16px 10px 48px;
+    }
+
+    /* ── Parchment sheet ── */
+    .sheet {
+      width: 100%;
+      max-width: 420px;
+      background:
+        /* stains */
+        radial-gradient(ellipse 60% 30% at 70% 15%, rgba(160,120,40,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 20% at 20% 80%, rgba(120,90,30,0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at 50% 50%, #e8d8b0 0%, #dcc88a 60%, #c8b070 100%);
+      border-radius: 4px;
+      padding: 18px 16px 22px;
+      position: relative;
+      font-family: var(--font-body);
+      color: var(--ink);
+      box-shadow:
+        0 0 0 1px rgba(26,15,0,0.4),
+        0 4px 8px rgba(0,0,0,0.5),
+        0 12px 40px rgba(0,0,0,0.6),
+        inset 0 0 60px rgba(120,90,30,0.2);
+    }
+
+    /* torn/rough edge effect */
+    .sheet::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 5px;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(26,15,0,0.03) 3px,
+        rgba(26,15,0,0.03) 4px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 5px,
+        rgba(26,15,0,0.02) 5px,
+        rgba(26,15,0,0.02) 6px
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* ── Ink border around whole sheet ── */
+    .sheet-border {
+      border: 2.5px solid var(--ink);
+      border-radius: 2px;
+      padding: 12px 12px 14px;
+      position: relative;
+    }
+
+    /* corner ornaments */
+    .sheet-border::before, .sheet-border::after {
+      content: '✦';
+      position: absolute;
+      font-size: 10px;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .sheet-border::before { top: -7px; left: 50%; transform: translateX(-50%); }
+    .sheet-border::after  { bottom: -7px; left: 50%; transform: translateX(-50%); }
+
+    /* ── Section box ── */
+    .ink-box {
+      border: 1.5px solid var(--ink);
+      border-radius: 1px;
+      padding: 7px 9px 8px;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .box-label {
+      position: absolute;
+      top: -9px;
+      left: 8px;
+      background: var(--parchment);
+      padding: 0 5px;
+      font-family: var(--font-title);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      background: linear-gradient(to bottom, #e2cc96, #dcc88a);
+    }
+
+    /* ── Sheet header ── */
+    .sheet-header {
+      text-align: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid var(--ink);
+      position: relative;
+    }
+
+    .sheet-header-title {
+      font-family: var(--font-title);
+      font-size: 18px;
+      letter-spacing: 2px;
+      color: var(--ink);
+      line-height: 1.2;
+    }
+
+    .sheet-header-sub {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 11px;
+      color: var(--ink-light);
+      margin-top: 2px;
+    }
+
+    .deceased-stamp {
+      display: none;
+      position: absolute;
+      top: 2px;
+      right: 0;
+      font-family: var(--font-title);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--red-ink);
+      border: 2px solid var(--red-ink);
+      padding: 2px 6px;
+      border-radius: 2px;
+      transform: rotate(-8deg);
+      opacity: 0.85;
+      text-transform: uppercase;
+    }
+
+    .deceased-stamp.visible { display: block; }
+
+    /* ── Identity row ── */
+    .identity-row {
+      display: grid;
+      grid-template-columns: 1fr 70px;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .stat-block {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      border: 1.5px solid var(--ink);
+      border-radius: 1px;
+      padding: 4px 2px 5px;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .stat-block-label {
+      font-family: var(--font-title);
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .stat-block-val {
+      font-family: var(--font-hand);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+      width: 100%;
+      text-align: center;
+      background: none;
+      border: none;
+      outline: none;
+      padding: 0;
+      caret-color: var(--ink);
+    }
+
+    /* ── Middle layout: art + right panel ── */
+    .middle-row {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    /* Character art box */
+    .art-box {
+      border: 1.5px solid var(--ink);
+      border-radius: 1px;
+      background: rgba(26,15,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .art-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--ink-light);
+      opacity: 0.4;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .art-placeholder svg { width: 48px; height: 48px; opacity: 0.6; }
+
+    .art-placeholder span {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 9px;
+      line-height: 1.3;
+    }
+
+    /* ── Weapon panel (right side) ── */
+    .weapon-panel { display: flex; flex-direction: column; gap: 6px; }
+
+    .weapon-slot {
+      border: 1.5px solid var(--ink);
+      border-radius: 1px;
+      padding: 6px 8px 7px;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .weapon-slot-label {
+      position: absolute;
+      top: -8px;
+      left: 7px;
+      background: linear-gradient(to bottom, #e2cc96, #dcc88a);
+      padding: 0 4px;
+      font-family: var(--font-title);
+      font-size: 8px;
+      letter-spacing: 1px;
+      color: var(--ink-light);
+    }
+
+    .weapon-name-row {
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      gap: 5px;
+      margin-bottom: 5px;
+    }
+
+    .weapon-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .weapon-props {
+      grid-column: 1 / -1;
+      margin-top: 2px;
+    }
+
+    .field-label-ink {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 9px;
+      color: var(--ink-light);
+      margin-bottom: 1px;
+      display: block;
+    }
+
+    .ink-input {
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--ink-light);
+      outline: none;
+      width: 100%;
+      font-family: var(--font-hand);
+      font-size: 14px;
+      color: var(--ink);
+      padding: 1px 2px 2px;
+      caret-color: var(--ink);
+    }
+
+    .ink-input::placeholder { color: rgba(26,15,0,0.2); font-style: italic; }
+
+    textarea.ink-input {
+      resize: none;
+      border: 1px solid var(--ink-light);
+      border-radius: 1px;
+      padding: 3px 4px;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
+    .add-weapon-btn {
+      background: none;
+      border: 1px dashed var(--ink-light);
+      border-radius: 2px;
+      color: var(--ink-light);
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 10px;
+      padding: 5px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      transition: all 0.15s;
+      opacity: 0.6;
+    }
+
+    .add-weapon-btn:hover { opacity: 1; }
+
+    .weapon-remove {
+      position: absolute;
+      top: 3px;
+      right: 4px;
+      background: none;
+      border: none;
+      color: var(--ink-light);
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0.4;
+      line-height: 1;
+      padding: 0 2px;
+    }
+
+    .weapon-remove:hover { opacity: 0.9; color: var(--red-ink); }
+
+    /* ── Feats / Flaws / Injury ── */
+    .feats-box { margin-bottom: 10px; }
+
+    .feat-line {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px;
+      align-items: center;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(26,15,0,0.12);
+    }
+
+    .feat-line:last-of-type { border-bottom: none; }
+
+    .feat-remove {
+      background: none;
+      border: none;
+      color: var(--ink-light);
+      font-size: 10px;
+      cursor: pointer;
+      opacity: 0.3;
+      padding: 2px 4px;
+    }
+
+    .feat-remove:hover { opacity: 0.8; color: var(--red-ink); }
+
+    .add-feat-btn {
+      background: none;
+      border: none;
+      color: var(--ink-light);
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 10px;
+      cursor: pointer;
+      padding: 4px 0 0;
+      opacity: 0.5;
+      display: block;
+    }
+
+    .add-feat-btn:hover { opacity: 1; }
+
+    /* ── Tragedy ── */
+    .tragedy-section { margin-bottom: 0; }
+
+    .tragedy-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 0;
+    }
+
+    .tragedy-word {
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 11px;
+      color: var(--ink-light);
+      flex-shrink: 0;
+    }
+
+    .tally-marks {
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+      flex: 1;
+      align-items: center;
+    }
+
+    .tally {
+      width: 3px;
+      height: 20px;
+      background: var(--ink);
+      border-radius: 1px;
+      cursor: pointer;
+      transition: opacity 0.1s;
+      flex-shrink: 0;
+    }
+
+    .tally-group {
+      display: flex;
+      gap: 2px;
+      margin-right: 4px;
+    }
+
+    /* every 5th tally is diagonal */
+    .tally.cross {
+      transform: rotate(-70deg) scaleY(1.3);
+      transform-origin: center;
+      margin-left: -6px;
+      margin-right: 3px;
+    }
+
+    .tally:hover { opacity: 0.5; }
+
+    .tally-add {
+      background: none;
+      border: 1px dashed rgba(26,15,0,0.3);
+      border-radius: 1px;
+      width: 18px;
+      height: 20px;
+      color: var(--ink-light);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.45;
+      flex-shrink: 0;
+    }
+
+    .tally-add:hover { opacity: 1; }
+
+    /* ── Deceased toggle button ── */
+    .controls-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(26,15,0,0.2);
+    }
+
+    .ctrl-btn {
+      background: none;
+      border: 1px solid rgba(26,15,0,0.25);
+      border-radius: 2px;
+      font-family: var(--font-body);
+      font-style: italic;
+      font-size: 10px;
+      color: var(--ink-light);
+      padding: 4px 10px;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: all 0.15s;
+    }
+
+    .ctrl-btn:hover { opacity: 1; border-color: var(--red-ink); color: var(--red-ink); }
+    .ctrl-btn.active { color: var(--red-ink); border-color: var(--red-ink); opacity: 0.85; }
+
+    /* ── Small utility ── */
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+
+<div class="sheet">
+  <div class="sheet-border">
+
+    <!-- Header -->
+    <div class="sheet-header">
+      <span class="deceased-stamp" id="deceased-stamp">Deceased</span>
+      <div class="sheet-header-title">Character Sheet</div>
+      <div class="sheet-header-sub">Forbidden Lands</div>
+    </div>
+
+    <!-- Identity -->
+    <div class="identity-row" style="margin-bottom:10px;">
+      <div>
+        <span class="field-label-ink">Name</span>
+        <input class="ink-input" type="text" placeholder="Character name" autocomplete="off" style="font-size:17px;font-weight:600;">
+      </div>
+      <div>
+        <span class="field-label-ink">Age</span>
+        <input class="ink-input" type="text" placeholder="—" autocomplete="off" style="text-align:center;">
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row" style="margin-bottom:10px;">
+      <div class="stat-block">
+        <span class="stat-block-label">AGI</span>
+        <input class="stat-block-val" type="text" placeholder="0" autocomplete="off">
+      </div>
+      <div class="stat-block">
+        <span class="stat-block-label">PRE</span>
+        <input class="stat-block-val" type="text" placeholder="0" autocomplete="off">
+      </div>
+      <div class="stat-block">
+        <span class="stat-block-label">STR</span>
+        <input class="stat-block-val" type="text" placeholder="0" autocomplete="off">
+      </div>
+      <div class="stat-block">
+        <span class="stat-block-label">CARRY</span>
+        <input class="stat-block-val" type="text" placeholder="0" autocomplete="off">
+      </div>
+      <div class="stat-block">
+        <span class="stat-block-label">TOU</span>
+        <input class="stat-block-val" type="text" placeholder="0" autocomplete="off">
+      </div>
+    </div>
+
+    <!-- Art + Weapons side by side -->
+    <div class="middle-row">
+
+      <!-- Character art placeholder -->
+      <div class="art-box">
+        <div class="art-placeholder">
+          <svg viewBox="0 0 64 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- robe figure silhouette -->
+            <ellipse cx="32" cy="12" rx="9" ry="10" fill="currentColor"/>
+            <path d="M14 72 Q18 40 32 34 Q46 40 50 72Z" fill="currentColor"/>
+            <line x1="18" y1="46" x2="8" y2="62" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+            <line x1="46" y1="46" x2="56" y2="62" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+          <span>character art</span>
+        </div>
+      </div>
+
+      <!-- Weapons panel -->
+      <div class="weapon-panel" id="weapon-panel">
+        <!-- populated by JS -->
+      </div>
+
+    </div>
+
+    <!-- Add weapon link sits below the grid -->
+    <div style="margin-bottom:10px;">
+      <button class="add-weapon-btn" onclick="addWeapon()">+ add weapon</button>
+    </div>
+
+    <!-- Feats / Flaws / Injury -->
+    <div class="ink-box feats-box" style="margin-bottom:10px;">
+      <span class="box-label">Feats, Flaws &amp; Injury</span>
+      <div id="feats-list"><!-- populated by JS --></div>
+      <button class="add-feat-btn" onclick="addFeat()">+ add entry</button>
+    </div>
+
+    <!-- Tragedy -->
+    <div class="ink-box tragedy-section">
+      <span class="box-label">Tragedy</span>
+      <div class="tragedy-inner">
+        <span class="tragedy-word">Marks:</span>
+        <div class="tally-marks" id="tally-marks"><!-- populated by JS --></div>
+        <button class="tally-add" onclick="addTally()" title="Add mark">+</button>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-row">
+      <button class="ctrl-btn" id="deceased-btn" onclick="toggleDeceased()">mark deceased</button>
+    </div>
+
+  </div><!-- /sheet-border -->
+</div><!-- /sheet -->
+
+<script>
+  /* ── Deceased ── */
+  let deceased = false;
+  function toggleDeceased() {
+    deceased = !deceased;
+    document.getElementById('deceased-stamp').classList.toggle('visible', deceased);
+    const btn = document.getElementById('deceased-btn');
+    btn.textContent = deceased ? 'mark alive' : 'mark deceased';
+    btn.classList.toggle('active', deceased);
+  }
+
+  /* ── Weapons ── */
+  let wid = 0;
+
+  function addWeapon(name='', bonus='', dmg='', range='', wt='', props='') {
+    wid++;
+    const id = wid;
+    const panel = document.getElementById('weapon-panel');
+    const slot = document.createElement('div');
+    slot.className = 'weapon-slot';
+    slot.id = 'ws-' + id;
+    slot.innerHTML = `
+      <span class="weapon-slot-label">Weapon</span>
+      <button class="weapon-remove" onclick="removeWeapon(${id})" title="Remove">✕</button>
+      <div class="weapon-name-row">
+        <div>
+          <span class="field-label-ink">Name</span>
+          <input class="ink-input" type="text" placeholder="e.g. Staff" value="${e(name)}" autocomplete="off" style="font-size:15px;font-weight:600;">
+        </div>
+        <div>
+          <span class="field-label-ink">Bonus</span>
+          <input class="ink-input" type="text" placeholder="+0" value="${e(bonus)}" autocomplete="off" style="text-align:center;">
+        </div>
+      </div>
+      <div class="weapon-details">
+        <div>
+          <span class="field-label-ink">Damage</span>
+          <input class="ink-input" type="text" placeholder="d8+STR" value="${e(dmg)}" autocomplete="off">
+        </div>
+        <div>
+          <span class="field-label-ink">Range</span>
+          <input class="ink-input" type="text" placeholder="Near" value="${e(range)}" autocomplete="off">
+        </div>
+        <div>
+          <span class="field-label-ink">Weight</span>
+          <input class="ink-input" type="text" placeholder="Normal" value="${e(wt)}" autocomplete="off">
+        </div>
+        <div class="weapon-props">
+          <span class="field-label-ink">Properties / Notes</span>
+          <textarea class="ink-input" rows="2" placeholder="Special rules, enchantments…">${e(props)}</textarea>
+        </div>
+      </div>
+    `;
+    panel.appendChild(slot);
+  }
+
+  function removeWeapon(id) {
+    const el = document.getElementById('ws-' + id);
+    if (el) el.remove();
+  }
+
+  /* ── Feats ── */
+  let fid = 0;
+
+  function addFeat(val='') {
+    fid++;
+    const id = fid;
+    const list = document.getElementById('feats-list');
+    const row = document.createElement('div');
+    row.className = 'feat-line';
+    row.id = 'feat-' + id;
+    row.innerHTML = `
+      <input class="ink-input" type="text" placeholder="e.g. Barkskin (+1 ARM, −1 AGI)" value="${e(val)}" autocomplete="off">
+      <button class="feat-remove" onclick="removeFeat(${id})" title="Remove">✕</button>
+    `;
+    list.appendChild(row);
+  }
+
+  function removeFeat(id) {
+    const el = document.getElementById('feat-' + id);
+    if (el) el.remove();
+  }
+
+  /* ── Tally ── */
+  let tallyTotal = 0;
+
+  function addTally() {
+    tallyTotal++;
+    const area = document.getElementById('tally-marks');
+    const mark = document.createElement('div');
+    mark.className = 'tally' + (tallyTotal % 5 === 0 ? ' cross' : '');
+    mark.title = 'Click to remove';
+    mark.onclick = () => { mark.remove(); tallyTotal--; };
+    area.appendChild(mark);
+  }
+
+  /* ── HTML escape ── */
+  function e(s) {
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/"/g,'&quot;')
+      .replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  /* ── Seed defaults ── */
+  addWeapon();
+  addFeat();
+  addFeat();
+  addFeat();
+</script>
+
+</body>
+</html>
