@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": "node .cursor/hooks/precompact.js"
+      }
+    ],
+    "preCompact": [
+      {
+        "command": "node .cursor/hooks/precompact.js"
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/precompact.js"
+      }
+    ]
+  }
+}

@@ -1,2 +1,8 @@
 node_modules/
 coverage/
+
+# adr-skill:start (managed by adr-skill init; do not edit between sentinels)
+.adr-skill/state/
+.adr-skill/logs/
+*.tgz
+# adr-skill:end

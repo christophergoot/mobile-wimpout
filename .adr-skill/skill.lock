@@ -1,0 +1,29 @@
+{
+  "skill_version": "0.5.0",
+  "hosts": [
+    "cursor"
+  ],
+  "files": {
+    "skill.yaml": "sha256:38465681a97495144b0d0b0d8874cd2e5e0cddaff3cc5d1cce42b67dc6708471",
+    "VERSION": "sha256:a0ad50640139a524f86591157145bf1d4674ea9c065bfea21558f0f7b04430c8",
+    "templates/adr-madr.md": "sha256:71207410ec549f017c0ec9bee9472765c5d60c7a071c8b3dd0ad5ec28a2b9700",
+    "templates/adr-lite.md": "sha256:e65f8b77ff1159a08180302c49550b12b4962188e28e71ce1cf03706b45f967e",
+    "templates/adr-readme.md": "sha256:0783bc04466dee88215c1e8b7afb0ed0596b807c15de25198bce19e31ad36c32",
+    "prompts/orchestrator.md": "sha256:a12b5ac8885c0c629355d44731be8c6dcde76bca69baad48af63857a47dc1724",
+    "prompts/adr-author.md": "sha256:b3b9afce403462b92a3a18e0988db1ad29734d4f7cf7ec980092c2cf091d7b75",
+    "prompts/reviewer.md": "sha256:939eec96948b9f55372a9d510bc15b56db64196aa9320f26e8972075ac9f65cd",
+    "schemas/adr-frontmatter.schema.json": "sha256:96c882b2b17aeb875cabd76ee864456f71bacc41874c3622fa2eaf389b4aafab",
+    "schemas/run.schema.json": "sha256:07326703c80f1769d3dca596d43a4ff7114f1b19af1f54d071770a7374548129",
+    "schemas/finding.schema.json": "sha256:5604ba7921adcb0913f98a63395f69e5fbd77c719d5cffea769b50622ce966cb",
+    "schemas/index.schema.json": "sha256:3a42c467dabff3b9c4321a99a1ab23bba5ce7f6b288ca41fea36ea4838e4195c",
+    "assets/cursor/SKILL.md": "sha256:e45f7ea4d69cf737b670d95bc5d5f4c474249be590157607a645ae8ebf2d800a",
+    "assets/cursor/hooks.json": "sha256:c60ad439ce39c05739e2d7f54b7687ec16dd6166b37a87733930a152182ee8d8",
+    "assets/cursor/hooks/precompact.js": "sha256:64138ea5c94f3c580a89087b0970f94fbd0bbeb804e9ba8b6fccbebf56835de8",
+    "assets/cursor/agents/reviewer.md": "sha256:27cc2be68bf143f01f7d9ecbcbcbcf850e600ae37594ef988d2b907523f0cf6b",
+    "assets/claude-code/skills/adr-skill/SKILL.md": "sha256:ea305e935404a230d00901c18ca96d6345cb4039209f7cf288d36f28db0ed5ec",
+    "assets/claude-code/commands/adr-skill.md": "sha256:bf7755aad7504498fd5c8c2d60680ebe474157127864cec8bb90dec5a6a9eeb0",
+    "assets/claude-code/agents/adr-reviewer.md": "sha256:bf1a12fa0c8af7ebba8ac59bf781162b18e5e4db31ae33b6dbaa6919d9e156b6",
+    "assets/codex/skills/adr-skill/SKILL.md": "sha256:77316f6de70bec2e6118f4ba3874fbbc38f247cc14a775a249121f1e6b342648",
+    "assets/agents-md/AGENTS.fragment.md": "sha256:8aff8386566d3a8c1b520c3139327939895c011da0395a9c0416ed62bd85eb93"
+  }
+}

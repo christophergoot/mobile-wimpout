@@ -1,0 +1,83 @@
+{
+  "generated": "2026-05-13",
+  "tool": "adr-skill/brownfield",
+  "adrs": [
+    {
+      "id": "0001",
+      "slug": "vanilla-js-single-file-architecture",
+      "title": "Vanilla JS single-file architecture with no build step",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js"],
+      "rca-keywords": ["architecture", "build", "bundler", "framework", "vanilla", "monolith"],
+      "error-codes": [],
+      "severity-hint": "low"
+    },
+    {
+      "id": "0002",
+      "slug": "css-3d-cube-dice-rendering",
+      "title": "CSS 3D cube transforms for dice rendering",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js", "style.css"],
+      "rca-keywords": ["dice", "animation", "css", "3d", "transform", "cube", "rendering"],
+      "error-codes": [],
+      "severity-hint": "low"
+    },
+    {
+      "id": "0003",
+      "slug": "css-custom-properties-for-theming",
+      "title": "CSS custom properties for runtime theming",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js", "style.css"],
+      "rca-keywords": ["theme", "css", "custom-properties", "variables", "dark-mode", "light-mode"],
+      "error-codes": [],
+      "severity-hint": "low"
+    },
+    {
+      "id": "0004",
+      "slug": "localstorage-game-state-persistence",
+      "title": "LocalStorage for game state persistence",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js"],
+      "rca-keywords": ["persistence", "state", "localstorage", "restore", "save", "refresh"],
+      "error-codes": [],
+      "severity-hint": "medium"
+    },
+    {
+      "id": "0005",
+      "slug": "global-mutable-state-object",
+      "title": "Global mutable state object for game model",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js"],
+      "rca-keywords": ["state", "global", "mutable", "model", "architecture", "testability"],
+      "error-codes": [],
+      "severity-hint": "medium"
+    },
+    {
+      "id": "0006",
+      "slug": "inline-svg-dice-face-themes",
+      "title": "Inline SVG constants for swappable dice face themes",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js"],
+      "rca-keywords": ["svg", "dice", "theme", "artwork", "inline", "face"],
+      "error-codes": [],
+      "severity-hint": "low"
+    },
+    {
+      "id": "0007",
+      "slug": "pure-function-game-rules-engine",
+      "title": "Pure-function game rules engine separated from UI",
+      "status": "accepted",
+      "date": "2026-05-13",
+      "components": ["game.js"],
+      "rca-keywords": ["rules", "evaluation", "pure", "testable", "dice", "scoring", "flash", "freight"],
+      "error-codes": [],
+      "severity-hint": "low"
+    }
+  ]
+}

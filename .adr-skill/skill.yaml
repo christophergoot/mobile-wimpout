@@ -1,0 +1,155 @@
+name: adr-skill
+version: 0.5.0
+description: >
+  Produce enterprise-grade Architecture Decision Records (ADRs) under docs/adr/.
+  Phase 5 adds the RCA query surface (rca search|explain|list), an opt-in
+  live-web Researcher with allow-listed authoritative domains, robots.txt
+  awareness, citation budgets, and an on-disk fetch cache, plus an
+  incident-triage playbook and four extra bundled corpus topics. Ships
+  Cursor 2.4+, Claude Code 2.0+, Codex CLI 0.34+, and a generic AGENTS.md
+  fallback so any agents.md-aware host can load the skill.
+license: MIT
+homepage: https://github.com/adr-toolkit/adr-skill
+
+entry_points:
+  greenfield: scripts/bootstrap_adr      # invoked by /adr-skill (greenfield run)
+  brownfield: scripts/brownfield         # invoked by `npx adr-skill brownfield`
+  cartograph: scripts/cartograph         # `npx adr-skill cartograph`
+  read:       scripts/read               # `npx adr-skill read`
+  research:   scripts/research           # `npx adr-skill research [--no-network] [--live] [--citation-budget N]`
+  synthesize: scripts/synthesize         # `npx adr-skill synthesize`
+  rca:        scripts/rca                # `npx adr-skill rca search|explain|list`
+  resume:     scripts/resume_run         # reads .adr-skill/state/runs/<id>/run.json
+  new_adr:    scripts/new_adr            # invoked by `npx adr-skill new`
+
+required_tools:
+  - node >= 18.19
+  - git >= 2.30
+
+optional_tools:
+  - python >= 3.10                       # for pip mirror (deferred)
+  - mmdc                                 # Mermaid CLI; renders embedded diagrams when present
+
+env_vars:
+  ADR_SKILL_NO_NETWORK: "1 = disable web research (Researcher emits skipped:no_network records); equivalent to passing --no-network."
+  ADR_SKILL_HOST: "cursor | claude-code | codex | agents-md | generic (override auto-detect)"
+  ADR_SKILL_STATE_DIR: "override default .adr-skill/state location"
+  ADR_SKILL_CACHE_DIR: "override default .adr-skill/cache location for the live-web fetcher"
+  ADR_SKILL_LIVE_RESEARCH: "1 = default --live ON for the Researcher (still subject to --no-network override)"
+
+output_paths:
+  adr_dir: docs/adr
+  index_md: docs/adr/README.md
+  index_json: docs/adr/index.json
+  state_dir: .adr-skill/state
+  cache_dir: .adr-skill/cache
+  reports_dir: .adr-skill/runs
+  brownfield_state: .adr-skill/state/runs/<run-id>/
+
+subagent_prompts:
+  orchestrator:    prompts/orchestrator.md
+  author:          prompts/adr-author.md
+  reviewer:        prompts/reviewer.md
+  cartographer:    prompts/cartographer.md
+  reader:          prompts/reader.md
+  researcher:      prompts/researcher.md
+  synthesizer:     prompts/synthesizer.md
+  diagram_author:  prompts/diagram-author.md
+
+templates:
+  madr:   templates/adr-madr.md
+  lite:   templates/adr-lite.md
+  readme: templates/adr-readme.md
+
+schemas:
+  adr_frontmatter: schemas/adr-frontmatter.schema.json
+  run:             schemas/run.schema.json
+  finding:         schemas/finding.schema.json
+  index:           schemas/index.schema.json
+  repo_map:        schemas/repo-map.schema.json
+  research:        schemas/research.schema.json
+  decision:        schemas/decision.schema.json
+  briefing:        schemas/briefing.schema.json
+  rca_report:      schemas/rca-report.schema.json
+
+research_corpus: assets/research-corpus/
+
+recipes:
+  incident_triage: recipes/incident-triage.md
+
+network_policy:
+  default_no_network: false
+  flag_no_network: --no-network
+  flag_live: --live
+  scope: "Researcher subagent and any future Researcher; air-gapped runs never make outbound calls. --no-network always wins; combining --live with --no-network is rejected with exit code 2."
+
+live_research:
+  default: off
+  citation_budget: 3
+  flag: --live
+  budget_flag: --citation-budget
+  cache_dir: .adr-skill/cache
+  cache_format: "JSON-per-URL keyed by sha256(url); stores status, body, content-type, fetched_at, ttl_seconds"
+  ttl_seconds: 86400
+  allow_listed_domains:
+    - learn.microsoft.com
+    - docs.microsoft.com
+    - azure.microsoft.com
+    - msdn.microsoft.com
+    - docs.aws.amazon.com
+    - aws.amazon.com
+    - cloud.google.com
+    - developers.google.com
+    - datatracker.ietf.org
+    - tools.ietf.org
+    - www.rfc-editor.org
+    - www.w3.org
+    - www.iso.org
+    - www.iso-architecture.org
+    - postgresql.org
+    - www.postgresql.org
+    - kafka.apache.org
+    - opentelemetry.io
+    - grafana.com
+    - prometheus.io
+    - kubernetes.io
+    - learn.databricks.com
+    - docs.databricks.com
+    - api.adoptium.net
+    - openjdk.org
+    - mozilla.org
+    - developer.mozilla.org
+    - reactjs.org
+    - react.dev
+    - nodejs.org
+    - github.com
+  robots:
+    enforce: true
+    cache_per_host: true
+  timeouts:
+    connect_seconds: 5
+    read_seconds: 10
+
+rca:
+  query_modes:
+    - search
+    - explain
+    - list
+  ranking: "BM25-lite over rca_keywords + error_codes + components + tags + title"
+  freshness_check: "verify validates that index.json reflects the latest front-matter; drift exits 3 with a hint to run `npx adr-skill index`"
+
+supported_hosts:
+  - id: cursor
+    min_version: "2.4"
+    adapter: assets/cursor/
+  - id: claude-code
+    min_version: "2.0"
+    adapter: assets/claude-code/
+  - id: codex
+    min_version: "0.34"
+    adapter: assets/codex/
+  - id: agents-md
+    min_version: any
+    adapter: assets/agents-md/
+
+telemetry: none
