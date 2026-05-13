@@ -1,0 +1,87 @@
+{
+  "run_id": "01KRG87JKMVXMJD1QN9HFG7VN0",
+  "started_at": "2026-05-13T08:46:08.500Z",
+  "mode": "brownfield",
+  "phase": "finalised",
+  "phase_order": [
+    "cartograph",
+    "read",
+    "research",
+    "synthesize",
+    "author",
+    "review",
+    "index"
+  ],
+  "phase_status": {},
+  "awaiting_human": null,
+  "skill_version": "0.5.0",
+  "host": "generic",
+  "auto_mode": false,
+  "no_network": true,
+  "inputs": {
+    "mode": "brownfield",
+    "max_files": 200,
+    "corpus_paths": [],
+    "live": false,
+    "citation_budget": 3
+  },
+  "phases": [
+    {
+      "name": "cartograph",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.508Z",
+      "completed_at": "2026-05-13T08:46:08.554Z",
+      "duration_ms": 46,
+      "input_hash": "sha256:81c72b065517763bda1bf8c61894a97096323c8a5953fdc172ee1e1585e7b2d3",
+      "notes": "17 files kept, 3 framework signals, 17 top files"
+    },
+    {
+      "name": "read",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.561Z",
+      "completed_at": "2026-05-13T08:46:08.594Z",
+      "duration_ms": 33,
+      "notes": "4 findings appended (0 skipped on resume)"
+    },
+    {
+      "name": "research",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.596Z",
+      "completed_at": "2026-05-13T08:46:08.622Z",
+      "duration_ms": 26,
+      "notes": "0 ok (0 live, 0 corpus), 2 skipped (no_network), 0 skipped (no_corpus_entry), 0 skipped (disallowed), 0 skipped (budget)"
+    },
+    {
+      "name": "synthesize",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.623Z",
+      "completed_at": "2026-05-13T08:46:08.641Z",
+      "duration_ms": 18,
+      "notes": "2 decisions emitted (next ADR id 3)"
+    },
+    {
+      "name": "author",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.695Z",
+      "completed_at": "2026-05-13T08:46:08.695Z",
+      "duration_ms": 0,
+      "notes": "2 drafts authored"
+    },
+    {
+      "name": "review",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.695Z",
+      "completed_at": "2026-05-13T08:46:08.695Z",
+      "duration_ms": 0,
+      "notes": "0001 data-store-postgres: STAGED; 0002 framework-react: STAGED"
+    },
+    {
+      "name": "index",
+      "status": "done",
+      "started_at": "2026-05-13T08:46:08.696Z",
+      "completed_at": "2026-05-13T08:46:08.702Z",
+      "duration_ms": 0,
+      "notes": "1 ADRs indexed"
+    }
+  ]
+}

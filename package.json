@@ -12,14 +12,24 @@
   },
   "jest": {
     "testEnvironment": "jsdom",
-    "testMatch": ["**/__tests__/**/*.test.js"],
-    "collectCoverageFrom": ["game.js"],
+    "testMatch": [
+      "**/__tests__/**/*.test.js"
+    ],
+    "collectCoverageFrom": [
+      "game.js"
+    ],
     "coverageThreshold": {
       "global": {
         "functions": 12,
         "lines": 10
       }
     },
-    "coverageReporters": ["text", "lcov"]
+    "coverageReporters": [
+      "text",
+      "lcov"
+    ]
+  },
+  "dependencies": {
+    "adr-skill": "file:../ai-insights-toolkit/ADR Skill"
   }
 }

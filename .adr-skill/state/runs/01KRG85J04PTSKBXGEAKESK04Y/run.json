@@ -1,0 +1,43 @@
+{
+  "run_id": "01KRG85J04PTSKBXGEAKESK04Y",
+  "started_at": "2026-05-13T08:45:02.357Z",
+  "mode": "greenfield",
+  "phase": "finalised",
+  "phase_order": [
+    "interview",
+    "drafting",
+    "review",
+    "human-accept",
+    "finalise"
+  ],
+  "phase_status": {
+    "interview": {
+      "state": "done",
+      "completed_at": "2026-05-13T08:45:02.357Z"
+    },
+    "drafting": {
+      "state": "done",
+      "completed_at": "2026-05-13T08:45:02.357Z",
+      "input_hash": "sha256:bffe82cef5c82527188a3d8094799e15df49384eaa61e6fca9fd48f641c59592"
+    },
+    "review": {
+      "state": "done",
+      "completed_at": "2026-05-13T08:45:02.377Z",
+      "notes": "PASS"
+    },
+    "finalise": {
+      "state": "done",
+      "completed_at": "2026-05-13T08:45:02.377Z"
+    }
+  },
+  "awaiting_human": null,
+  "skill_version": "0.5.0",
+  "host": "generic",
+  "auto_mode": true,
+  "inputs": {
+    "title": "Mobile Wimpout Architecture",
+    "template": "madr",
+    "slug": "mobile-wimpout-architecture",
+    "id": 0
+  }
+}

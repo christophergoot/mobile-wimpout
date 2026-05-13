@@ -1,0 +1,240 @@
+{
+  "schema_version": "1",
+  "generated_at": "2026-05-13T08:46:08.508Z",
+  "root_hash": "sha256:81c72b065517763bda1bf8c61894a97096323c8a5953fdc172ee1e1585e7b2d3",
+  "stats": {
+    "total_files_seen": 17,
+    "total_files_kept": 17,
+    "total_lines": 9544,
+    "duration_ms": 39
+  },
+  "language_inventory": [
+    {
+      "language": "JSON",
+      "files": 4,
+      "lines": 4559
+    },
+    {
+      "language": "JavaScript",
+      "files": 5,
+      "lines": 3122
+    },
+    {
+      "language": "CSS",
+      "files": 1,
+      "lines": 1293
+    },
+    {
+      "language": "HTML",
+      "files": 1,
+      "lines": 338
+    },
+    {
+      "language": "Markdown",
+      "files": 2,
+      "lines": 136
+    },
+    {
+      "language": "YAML",
+      "files": 1,
+      "lines": 62
+    },
+    {
+      "language": "Other",
+      "files": 2,
+      "lines": 32
+    },
+    {
+      "language": "Config",
+      "files": 1,
+      "lines": 2
+    }
+  ],
+  "framework_signals": [
+    {
+      "id": "github-actions",
+      "name": "GitHub Actions",
+      "category": "ci",
+      "evidence": [
+        ".github/workflows/deploy.yml"
+      ]
+    },
+    {
+      "id": "jest",
+      "name": "Jest",
+      "category": "test",
+      "evidence": [
+        "package.json"
+      ],
+      "version": "^29.7.0"
+    },
+    {
+      "id": "node",
+      "name": "Node.js",
+      "category": "runtime",
+      "evidence": [
+        "package.json"
+      ]
+    }
+  ],
+  "top_files": [
+    {
+      "path": "package.json",
+      "lines": 35,
+      "score": 10.882353,
+      "category": "config",
+      "language": "JSON",
+      "sha": "5f771d908a465103783eb39167aa5009c0d5c5fa7a211fc1c5c5dc138e7b159b"
+    },
+    {
+      "path": ".github/workflows/deploy.yml",
+      "lines": 62,
+      "score": 5.882353,
+      "category": "ci",
+      "language": "YAML",
+      "sha": "4685c0d081af8164238ccf13bb391ac8f2353fa84d1f3d0e5a2d841c98432b2c"
+    },
+    {
+      "path": "docs/adr/README.md",
+      "lines": 35,
+      "score": 4.882353,
+      "category": "doc",
+      "language": "Markdown",
+      "sha": "4a3ba20260bd569aea8f21df9c903937461585d1d5b03c8075e4c631fc46f71b"
+    },
+    {
+      "path": "game.js",
+      "lines": 2062,
+      "score": 1.941176,
+      "category": "code",
+      "language": "JavaScript",
+      "sha": "eb7cb03066734842be1bbfc70997d6952a439d0d40fa45790ff6685ab64a4b27"
+    },
+    {
+      "path": "docs/adr/0000-mobile-wimpout-architecture.md",
+      "lines": 101,
+      "score": 1.882353,
+      "category": "doc",
+      "language": "Markdown",
+      "sha": "1eadaaa2872429f64648d88f75e0b249a608378bf9cac6ddf74882e40039ca61"
+    },
+    {
+      "path": "docs/adr/index.json",
+      "lines": 23,
+      "score": 1.882353,
+      "category": "config",
+      "language": "JSON",
+      "sha": "bdc5e4d161449da509968d1dab04b6d88f3ce0af6e0aa5e67f54e781df3265b3"
+    },
+    {
+      "path": ".claude/settings.local.json",
+      "lines": 17,
+      "score": 0.882353,
+      "category": "config",
+      "language": "JSON",
+      "sha": "f6fa6e8f4b2f17f61d5499791102fc5381df1ac0d08e18292d9be610460e367c"
+    },
+    {
+      "path": ".gitignore",
+      "lines": 2,
+      "score": 0.882353,
+      "category": "code",
+      "language": "Config",
+      "sha": "108d2b818b63d1f2ffaefee13455961edf1544f49ccf847396de3e85eb5ad724"
+    },
+    {
+      "path": "__tests__/applyRollRules.test.js",
+      "lines": 353,
+      "score": 0.882353,
+      "category": "code",
+      "language": "JavaScript",
+      "sha": "b1bd15ff41b575d984366e68976c871063faed63de59f67b04351fa3f0cb31f0"
+    },
+    {
+      "path": "__tests__/createGame.test.js",
+      "lines": 145,
+      "score": 0.882353,
+      "category": "code",
+      "language": "JavaScript",
+      "sha": "98629ef39a4d94c647d2281c5b6d9fbc58d2cac3e425a78ce2f182524afc9be6"
+    },
+    {
+      "path": "__tests__/diceThemeSelector.test.js",
+      "lines": 204,
+      "score": 0.882353,
+      "category": "code",
+      "language": "JavaScript",
+      "sha": "e6e0d5d1901877ccc2ea336d8744573ef97351747a9f3a698a7a958d47898232"
+    },
+    {
+      "path": "__tests__/evaluateDice.test.js",
+      "lines": 358,
+      "score": 0.882353,
+      "category": "code",
+      "language": "JavaScript",
+      "sha": "d8c3b5bdf249d1248390246d8b914b5ea7f161c631e0332b7a9eb7e8dbbf6158"
+    },
+    {
+      "path": "favicon.svg",
+      "lines": 27,
+      "score": 0.882353,
+      "category": "code",
+      "language": "Other",
+      "sha": "b814a7eb0ef336575a308675d34c15ac169cf1c330e4467cbbd9793063e6d31b"
+    },
+    {
+      "path": "hooks/pre-commit",
+      "lines": 5,
+      "score": 0.882353,
+      "category": "code",
+      "language": "Other",
+      "sha": "fbb119d5ca9f710cc20ea6b4e72931c0d5700927503cb557a60185842cea7bed"
+    },
+    {
+      "path": "index.html",
+      "lines": 338,
+      "score": 0.882353,
+      "category": "code",
+      "language": "HTML",
+      "sha": "6a19f32744eeb605b47f39272f86e12c25c155557819d69a7b5910631457b1f5"
+    },
+    {
+      "path": "style.css",
+      "lines": 1293,
+      "score": 0.882353,
+      "category": "code",
+      "language": "CSS",
+      "sha": "a9fbd904154efc0510e574c9fea678add76c5898b31aaf2bac4d5093029b17d5"
+    },
+    {
+      "path": "package-lock.json",
+      "lines": 4484,
+      "score": 0.441176,
+      "category": "config",
+      "language": "JSON",
+      "sha": "a2499c2dabba51faf6335b1134710312470cdb1043a824b4aab247db200b72b2"
+    }
+  ],
+  "edges": [
+    {
+      "from": "__tests__/applyRollRules.test.js",
+      "to": "game.js",
+      "kind": "require"
+    },
+    {
+      "from": "__tests__/createGame.test.js",
+      "to": "game.js",
+      "kind": "require"
+    },
+    {
+      "from": "__tests__/diceThemeSelector.test.js",
+      "to": "game.js",
+      "kind": "require"
+    },
+    {
+      "from": "__tests__/evaluateDice.test.js",
+      "to": "game.js",
+      "kind": "require"
+    }
+  ]
+}

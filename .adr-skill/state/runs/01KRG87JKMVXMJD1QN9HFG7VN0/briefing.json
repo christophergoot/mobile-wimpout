@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "run_id": "01KRG87JKMVXMJD1QN9HFG7VN0",
+  "mode": "brownfield",
+  "phase": "finalised",
+  "completed_phases": [
+    "cartograph",
+    "read",
+    "research",
+    "synthesize",
+    "author",
+    "review",
+    "index"
+  ],
+  "drafts": [
+    {
+      "id": 1,
+      "slug": "data-store-postgres",
+      "verdict": "STAGED"
+    },
+    {
+      "id": 2,
+      "slug": "framework-react",
+      "verdict": "STAGED"
+    }
+  ],
+  "next_action": "Commit the 0 promoted ADRs in docs/adr/",
+  "auto_mode": false,
+  "no_network": true,
+  "captured_at": "2026-05-13T08:46:08.500Z"
+}
